@@ -39,81 +39,72 @@ import hcm.logue.feedback.feedback.events.Event;
  */
 public class AudioFeedback extends Feedback
 {
-    Activity _activity;
-    AudioEvent _lastEvent = null;
-    long _lastExecutionTime = 0;
-    float _intensityNew = 0;
+    Activity activity;
+    float intensityNew = 0;
 
-    long _lock = 0;
+    long lock = 0;
 
-    SoundPool _player;
+    SoundPool player;
 
     public AudioFeedback(Activity activity)
     {
-        _activity = activity;
-        _type = Type.Audio;
+        this.activity = activity;
+        type = Type.Audio;
     }
 
     public void release()
     {
-        _player.release();
+        player.release();
     }
 
     @Override
-    public void execute(Event event)
+    public boolean execute(Event event)
     {
         //update only if the global lock has passed
-        if(System.currentTimeMillis() < _lock)
+        if(System.currentTimeMillis() < lock)
         {
-            Log.i(_name, "ignoring event, lock active for another " + (_lock - System.currentTimeMillis()) + "ms");
-            return;
+            Log.i(name, "ignoring event, lock active for another " + (lock - System.currentTimeMillis()) + "ms");
+            return false;
         }
 
         AudioEvent ev = (AudioEvent) event;
-        if(ev == null)
-        {
-            _lastEvent = null;
-            return;
-        }
-
-        if(ev == _lastEvent)
+        if(ev == lastEvent)
         {
             //check lock
             //only execute if enough time has passed since last execution of this instance
-            if (ev.lockSelf == -1 || System.currentTimeMillis() - _lastExecutionTime < ev.lockSelf)
-                return;
+            if (ev.lockSelf == -1 || System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
+                return false;
 
             if(ev.multiplier != 1)
             {
-                _intensityNew *= ev.multiplier;
-                if(_intensityNew > 1)
-                    _intensityNew = 1;
+                intensityNew *= ev.multiplier;
+                if(intensityNew > 1)
+                    intensityNew = 1;
             }
 
-            _player.play(ev.soundId, _intensityNew, 1, 1, 0, 1);
-            _lastExecutionTime = System.currentTimeMillis();
+            player.play(ev.soundId, intensityNew, 1, 1, 0, 1);
         }
         else
         {
-            _player.play(ev.soundId, ev.intensity, ev.intensity, 1, 0, 1);
-            _lastExecutionTime = System.currentTimeMillis();
-            _lastEvent = ev;
-            _intensityNew = ev.intensity;
+            player.play(ev.soundId, ev.intensity, ev.intensity, 1, 0, 1);
+            intensityNew = ev.intensity;
         }
 
         //set lock
         if(ev.lock > 0)
-            _lock = System.currentTimeMillis() + (long) ev.lock;
+            lock = System.currentTimeMillis() + (long) ev.lock;
         else
-            _lock = 0;
+            lock = 0;
+
+        return true;
     }
 
     protected void load(XmlPullParser xml, final Context context)
     {
         super.load(xml, context);
 
-        _player = new SoundPool(4, AudioManager.STREAM_NOTIFICATION, 0);
-        for(Event ev : _events)
-            ((AudioEvent) ev).registerWithPlayer(_player);
+        player = new SoundPool(4, AudioManager.STREAM_NOTIFICATION, 0);
+        for(Event ev : events)
+            ((AudioEvent) ev).registerWithPlayer(player);
     }
 }

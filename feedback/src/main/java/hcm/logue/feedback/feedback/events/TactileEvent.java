@@ -47,7 +47,7 @@ public class TactileEvent extends Event
 
     public TactileEvent()
     {
-        _type = Feedback.Type.Tactile;
+        type = Feedback.Type.Tactile;
     }
 
     protected void load(XmlPullParser xml, Context context)
@@ -75,7 +75,7 @@ public class TactileEvent extends Event
         }
         catch(IOException | XmlPullParserException e)
         {
-            Log.e(_tag, "error parsing config file", e);
+            Log.e(tag, "error parsing config file", e);
         }
     }
 }

@@ -21,13 +21,6 @@
   -->
 
 <logue>
-	<options>
-        <option name="ip">192.168.0.104</option>
-        <option name="port">34300</option>
-        <option name="sideBySide">0</option>
-        <option name="monitor">0</option>
-        <option name="background">#000000</option>
-	</options>
 	<feedback>
         <class type="visual" layout_id="layout_table">
             <behaviour name="SpeechRate" event="SpeechRate" sender="SSJ" history="5"/>

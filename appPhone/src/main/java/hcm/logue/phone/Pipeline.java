@@ -33,6 +33,9 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 
 import hcm.logue.feedback.FeedbackManager;
+import hcm.ssj.androidSensor.AndroidSensor;
+import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.audio.AudioConvert;
 import hcm.ssj.audio.AudioProvider;
 import hcm.ssj.audio.Microphone;
@@ -42,6 +45,7 @@ import hcm.ssj.body.OverallActivation;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Provider;
+import hcm.ssj.core.SensorProvider;
 import hcm.ssj.core.TheFramework;
 import hcm.ssj.event.FloatSegmentEventSender;
 import hcm.ssj.event.FloatsEventSender;
@@ -84,7 +88,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         Running
     }
 
-    private boolean _useMyo = true;
+    private boolean _useMyo = false;
     private AudioSource _audioSource = AudioSource.None;
     private FeedbackType _feedback = FeedbackType.Haptic;
 
@@ -273,61 +277,68 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
             }
 
             // Movement
-            if (_useMyo)
-            {
+            SensorProvider acc;
+
+            if (_useMyo) {
                 Myo myo = new Myo();
                 _ssj.addSensor(myo);
-
-                DynAccelerationProvider acc = new DynAccelerationProvider();
+                acc = new DynAccelerationProvider();
                 myo.addProvider(acc);
-
-                OverallActivation activity = new OverallActivation();
-                _ssj.addTransformer(activity, acc, _frameSize, 5.0);
-
-                _activityf = new MvgAvgVar();
-                _activityf.options.window.set(10.);
-                _pref.edit().putInt("MVGAVG_WINDOW", _activityf.options.window.get().intValue()).commit(); //initialize value in the GUI
-                _ssj.addTransformer(_activityf, activity, _frameSize, 0);
-
-                FloatsEventSender evactivity = new FloatsEventSender();
-                evactivity.options.sender.set("SSJ");
-                evactivity.options.event.set("OverallActivation");
-                _ssj.addConsumer(evactivity, _activityf, _frameSize * 5, 0);
-                EventChannel activity_channel = _ssj.registerEventProvider(evactivity);
-
-                EventLogger log = new EventLogger();
-                _ssj.registerEventListener(log, activity_channel);
-                _ssj.addComponent(log);
-
-                if (blw != null)
-                {
-                    _ssj.registerEventListener(blw, activity_channel);
-                }
-                if (_feedbackManager != null)
-                {
-                    _feedbackManager.registerEventChannel(activity_channel);
-                }
-
-                paint = new SignalPainter();
-                paint.options.manualBounds.set(true);
-                paint.options.min.set(-3.);
-                paint.options.max.set(3.);
-                paint.options.numVLabels.set(4);
-                paint.options.graphView.set(_graphs[1]);
-                _ssj.addConsumer(paint, acc, 0.1, 0);
-
-                paint = new SignalPainter();
-                paint.options.graphView.set(_graphs[1]);
-                paint.options.colors.set(new int[]{0xff990000, 0xffff00ff, 0xff000000, 0xff339900});
-                paint.options.secondScaleDim.set(0);
-                paint.options.secondScaleMin.set(0.);
-                paint.options.secondScaleMax.set(3.);
-                paint.options.manualBounds.set(true);
-                paint.options.min.set(-3.);
-                paint.options.max.set(3.);
-                paint.options.numVLabels.set(4);
-                _ssj.addConsumer(paint, _activityf, 0.1, 0);
             }
+            else {
+                AndroidSensor androidSensor = new AndroidSensor();
+                androidSensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
+                _ssj.addSensor(androidSensor);
+                acc = new AndroidSensorProvider();
+                androidSensor.addProvider(acc);
+            }
+
+            OverallActivation activity = new OverallActivation();
+            _ssj.addTransformer(activity, acc, _frameSize, 5.0);
+
+            _activityf = new MvgAvgVar();
+            _activityf.options.window.set(10.);
+            _pref.edit().putInt("MVGAVG_WINDOW", _activityf.options.window.get().intValue()).commit(); //initialize value in the GUI
+            _ssj.addTransformer(_activityf, activity, _frameSize, 0);
+
+            FloatsEventSender evactivity = new FloatsEventSender();
+            evactivity.options.sender.set("SSJ");
+            evactivity.options.event.set("OverallActivation");
+            _ssj.addConsumer(evactivity, _activityf, _frameSize * 5, 0);
+            EventChannel activity_channel = _ssj.registerEventProvider(evactivity);
+
+            EventLogger log = new EventLogger();
+            _ssj.registerEventListener(log, activity_channel);
+            _ssj.addComponent(log);
+
+            if (blw != null)
+            {
+                _ssj.registerEventListener(blw, activity_channel);
+            }
+            if (_feedbackManager != null)
+            {
+                _feedbackManager.registerEventChannel(activity_channel);
+            }
+
+            paint = new SignalPainter();
+            paint.options.manualBounds.set(true);
+            paint.options.min.set(-3.);
+            paint.options.max.set(3.);
+            paint.options.numVLabels.set(4);
+            paint.options.graphView.set(_graphs[1]);
+            _ssj.addConsumer(paint, acc, 0.1, 0);
+
+            paint = new SignalPainter();
+            paint.options.graphView.set(_graphs[1]);
+            paint.options.colors.set(new int[]{0xff990000, 0xffff00ff, 0xff000000, 0xff339900});
+            paint.options.secondScaleDim.set(0);
+            paint.options.secondScaleMin.set(0.);
+            paint.options.secondScaleMax.set(3.);
+            paint.options.manualBounds.set(true);
+            paint.options.min.set(-3.);
+            paint.options.max.set(3.);
+            paint.options.numVLabels.set(4);
+            _ssj.addConsumer(paint, _activityf, 0.1, 0);
         }
         catch(Exception e)
         {

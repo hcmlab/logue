@@ -42,44 +42,15 @@ import hcm.logue.feedback.feedback.events.Event;
  */
 public abstract class Feedback
 {
-    public String _name = "Logue_Feedback_Feedback";
-
-    public enum Type
-    {
-        Visual,
-        Tactile,
-        Audio
-    }
-
-
-    public enum State
-    {
-        Unknown,
-        Desirable,
-        NotDesirable
-    }
-
-    protected String _tag = "Logue_Feedback";
-
-    protected Type _type;
-    protected int _id;
-
-
-    protected Behaviour _behaviour;
-    protected ArrayList<Event> _events = new ArrayList<Event>();
-
-    private ArrayList<FeedbackListener> _listeners = new ArrayList<>();
-
+    public String name = "Logue_Feedback_Feedback";
+    protected String tag = "Logue_Feedback";
+    protected Type type;
+    protected int id;
+    protected Behaviour behaviour;
+    protected ArrayList<Event> events = new ArrayList<Event>();
+    protected Event lastEvent = null;
     protected int level = 0;
-    protected State state = State.Desirable;
-
-    public int getLevel() {
-        return level;
-    }
-
-    public State getState() {
-        return state;
-    }
+    private ArrayList<FeedbackListener> listeners = new ArrayList<>();
 
     public static Feedback create(XmlPullParser xml, Activity activity)
     {
@@ -98,9 +69,20 @@ public abstract class Feedback
         return f;
     }
 
+    public int getLevel() {
+        return level;
+    }
+
+    public Valence getValence() {
+        if(lastEvent == null)
+            return Valence.Unknown;
+
+        return lastEvent.getValence();
+    }
+
     public void release()
     {
-        for(Event ev : _events)
+        for(Event ev : events)
         {
             ev.release();
         }
@@ -108,11 +90,12 @@ public abstract class Feedback
 
     public Behaviour getBehaviour()
     {
-        return _behaviour;
+        return behaviour;
     }
+
     public ArrayList<Event> getEvents()
     {
-        return _events;
+        return events;
     }
 
     /*
@@ -122,18 +105,19 @@ public abstract class Feedback
 
     public void process(hcm.ssj.core.event.Event behavEvent)
     {
-        if(!_behaviour.checkEvent(behavEvent))
+        if(!behaviour.checkEvent(behavEvent))
             return;
 
-        float value = _behaviour.parseEvent(behavEvent);
+        float value = behaviour.parseEvent(behavEvent);
 
         Event ev = getEvent(value);
         if(ev == null)
             return;
 
-        execute(ev);
-
-        state = ev.getState();
+        if(execute(ev)) {
+            ev.lastExecutionTime = System.currentTimeMillis();
+            lastEvent = ev;
+        }
 
         // Notify event listeners
         callPostFeedback(behavEvent, ev, value);
@@ -141,7 +125,7 @@ public abstract class Feedback
 
     private void callPostFeedback(final hcm.ssj.core.event.Event ssjEvent, final Event ev, final float value)
     {
-        for (final FeedbackListener listener : _listeners)
+        for (final FeedbackListener listener : listeners)
         {
             new Thread(new Runnable()
             {
@@ -153,12 +137,12 @@ public abstract class Feedback
         }
     }
 
-    public abstract void execute(Event event);
+    public abstract boolean execute(Event event);
 
     //returns currently active event
     public Event getEvent(float value)
     {
-        Iterator<Event> iter = _events.iterator();
+        Iterator<Event> iter = events.iterator();
         Event inst = null;
         while(iter.hasNext())
         {
@@ -171,21 +155,24 @@ public abstract class Feedback
 
     protected void load(XmlPullParser xml, Context context)
     {
-        //todo: load progression variables
         try
         {
             xml.require(XmlPullParser.START_TAG, null, "class");
+
+            String level_str = xml.getAttributeValue(null, "level");
+            if(level_str != null)
+                level = Integer.parseInt(level_str);
 
             while (xml.next() != XmlPullParser.END_DOCUMENT)
             {
                 if (xml.getEventType() == XmlPullParser.START_TAG && xml.getName().equalsIgnoreCase("behaviour"))
                 {
-                    _behaviour = Behaviour.create(xml, context);
+                    behaviour = Behaviour.create(xml, context);
                 }
                 else if (xml.getEventType() == XmlPullParser.START_TAG && xml.getName().equalsIgnoreCase("event"))
                 {
-                    Event t = Event.create(_type, xml, context);
-                    _events.add(t);
+                    Event t = Event.create(type, xml, context);
+                    events.add(t);
                 }
                 else if (xml.getEventType() == XmlPullParser.END_TAG && xml.getName().equalsIgnoreCase("class"))
                     break; //jump out once we reach end tag
@@ -193,12 +180,26 @@ public abstract class Feedback
         }
         catch(IOException | XmlPullParserException e)
         {
-            Log.e(_tag, "error parsing config file", e);
+            Log.e(tag, "error parsing config file", e);
         }
     }
 
     public void addFeedbackListener(FeedbackListener listener)
     {
-        _listeners.add(listener);
+        listeners.add(listener);
+    }
+
+    public enum Type
+    {
+        Visual,
+        Tactile,
+        Audio
+    }
+
+    public enum Valence
+    {
+        Unknown,
+        Desirable,
+        Undesirable
     }
 }

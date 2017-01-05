@@ -32,7 +32,7 @@ import java.io.IOException;
 /**
  * Created by Johnny on 02.12.2014.
  */
-public class Config {
+public class Options {
 
     protected SimpleArrayMap<String,String> _options = new SimpleArrayMap<String, String>();
 

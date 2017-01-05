@@ -28,7 +28,6 @@ import android.media.SoundPool;
 import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParser;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
@@ -52,7 +51,7 @@ public class AudioEvent extends Event
 
     public AudioEvent()
     {
-        _type = Feedback.Type.Audio;
+        type = Feedback.Type.Audio;
     }
 
     protected void load(XmlPullParser xml, Context context)
@@ -65,7 +64,6 @@ public class AudioEvent extends Event
             String name = xml.getAttributeValue(null, "name");
             if(name != null)
             {
-                xml.require(XmlPullParser.START_TAG, null, "event");
                 _afd =  context.getAssets().openFd(name);
             }
             else
@@ -87,9 +85,9 @@ public class AudioEvent extends Event
             if(timeoutMult_str != null)
                 multiplier = Float.valueOf(timeoutMult_str);
         }
-        catch(IOException | XmlPullParserException e)
+        catch(IOException e)
         {
-            Log.e(_tag, "error parsing config file", e);
+            Log.e(tag, "error parsing config file", e);
         }
     }
 
@@ -102,7 +100,7 @@ public class AudioEvent extends Event
         }
         catch (IOException e)
         {
-            Log.e(_tag, "error loading audio files", e);
+            Log.e(tag, "error loading audio files", e);
         }
     }
 }

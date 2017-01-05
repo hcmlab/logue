@@ -39,9 +39,9 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import hcm.logue.feedback.Config;
 import hcm.logue.feedback.Console;
 import hcm.logue.feedback.FeedbackManager;
+import hcm.logue.feedback.Options;
 import hcm.logue.glass.util.ConfigUtils;
 import hcm.ssj.audio.AudioProvider;
 import hcm.ssj.audio.Microphone;
@@ -53,15 +53,15 @@ import hcm.ssj.ioput.BluetoothWriter;
 
 public class MainActivity extends Activity {
 
-    String _name = "Logue_Visualizer_Activity";
+    String name = "Logue_Glass_Activity";
 
     private final String PHONE_MAC = "60:8F:5C:F2:D0:9D";
 
-    private Config _conf;
-    private Console _console;
-    private FeedbackManager _man;
+    private Options conf;
+    private Console console;
+    private FeedbackManager man;
 
-    private TheFramework _ssj;
+    private TheFramework ssj;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -77,47 +77,47 @@ public class MainActivity extends Activity {
         setContentView(hcm.logue.glass.R.layout.activity);
 
         //setup an SSJ pipeline to send sensor data to SSI
-        _ssj = TheFramework.getFramework();
+        ssj = TheFramework.getFramework();
 
         Microphone mic = new Microphone();
-        _ssj.addSensor(mic);
+        ssj.addSensor(mic);
 
         AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate = 16000;
-        audio.options.scale = false;
+        audio.options.sampleRate.set(16000);
+        audio.options.scale.set(false);
         mic.addProvider(audio);
 
         EventChannel channel = null;
         BluetoothWriter socket = new BluetoothWriter();
-        socket.options.connectionName = "audio";
-        socket.options.connectionType = BluetoothConnection.Type.CLIENT;
-        socket.options.serverAddr = PHONE_MAC;
-        _ssj.addConsumer(socket, audio, 0.1, 0);
+        socket.options.connectionName.set("audio");
+        socket.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+        socket.options.serverAddr.set(PHONE_MAC);
+        ssj.addConsumer(socket, audio, 0.1, 0);
 
         BluetoothEventReader eventReader = new BluetoothEventReader();
-        eventReader.options.connectionName = "logue";
-        eventReader.options.connectionType = BluetoothConnection.Type.CLIENT;
-        eventReader.options.serverAddr = PHONE_MAC;
-        channel = _ssj.registerEventProvider(eventReader);
-        _ssj.addComponent(eventReader);
+        eventReader.options.connectionName.set("logue");
+        eventReader.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+        eventReader.options.serverAddr.set(PHONE_MAC);
+        channel = ssj.registerEventProvider(eventReader);
+        ssj.addComponent(eventReader);
 
         //setup up the logic
-        _conf = new Config();
-        _console = new Console();
-        _man = new FeedbackManager(this);
-        _man.registerEventChannel(channel);
+        conf = new Options();
+        console = new Console();
+        man = new FeedbackManager(this);
+        man.registerEventChannel(channel);
 
         //load config file
-        load(_man, _conf, "config.xml", false);
+        load(man, conf, "config.xml", false);
 
         //initialize gui
-        _console.setup(this, R.id.layout_table);
-        _man.initClasses();
+        console.setup(this, R.id.layout_table);
+        man.initClasses();
 
         //start threads
-        if(_man != null)
-            new Thread(_man).start();
-        _ssj.Start();
+        if(man != null)
+            new Thread(man).start();
+        ssj.Start();
     }
 
     @Override
@@ -136,13 +136,13 @@ public class MainActivity extends Activity {
     protected void onDestroy() {
 
         try {
-            Log.i(_name, "stopping SSJ");
-            _ssj.Stop();
-            Log.i(_name, "stopping console");
-            _console.close();
-            Log.i(_name, "stopping manager");
-            _man.close();
-            Log.i(_name, "manager stopped");
+            Log.i(name, "stopping SSJ");
+            ssj.Stop();
+            Log.i(name, "stopping console");
+            console.close();
+            Log.i(name, "stopping manager");
+            man.close();
+            Log.i(name, "manager stopped");
         }
         catch(Exception e)
         {
@@ -150,7 +150,7 @@ public class MainActivity extends Activity {
         }
 
         super.onDestroy();
-        Log.i(_name, "shut down completed");
+        Log.i(name, "shut down completed");
     }
 
     public void onBackPressed()
@@ -164,7 +164,7 @@ public class MainActivity extends Activity {
         finish();
     }
 
-    private void load(FeedbackManager man, Config conf, String filename, boolean lookOnDevice)
+    private void load(FeedbackManager man, Options conf, String filename, boolean lookOnDevice)
     {
         try
         {
@@ -230,7 +230,7 @@ public class MainActivity extends Activity {
         }
         catch (Exception e)
         {
-            Log.e(_name, "exception when parsing config file", e);
+            Log.e(name, "exception when parsing config file", e);
         }
     }
 

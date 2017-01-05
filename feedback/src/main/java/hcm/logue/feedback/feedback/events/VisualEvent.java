@@ -47,7 +47,7 @@ public class VisualEvent extends Event
 
     public VisualEvent()
     {
-        _type = Feedback.Type.Visual;
+        type = Feedback.Type.Visual;
     }
 
     protected void load(XmlPullParser xml, Context context)
@@ -85,7 +85,7 @@ public class VisualEvent extends Event
         }
         catch(IOException | XmlPullParserException e)
         {
-            Log.e(_tag, "error parsing config file", e);
+            Log.e(tag, "error parsing config file", e);
         }
     }
 }

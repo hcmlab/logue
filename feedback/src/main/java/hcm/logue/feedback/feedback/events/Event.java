@@ -40,14 +40,15 @@ public class Event
     protected static int s_id = 0;
     public float thres_lower = 0;
     public float thres_upper = 0;
-    protected int _id;
-    protected Feedback.Type _type;
-    protected Feedback.State state;
-    String _tag = "Logue_FeedbackEvent";
+    public long lastExecutionTime = 0;
+    protected int id;
+    protected Feedback.Type type;
+    protected Feedback.Valence valence;
+    String tag = "Logue_FeedbackEvent";
 
     protected Event()
     {
-        _id = s_id++;
+        id = s_id++;
     }
 
     public static Event create(Feedback.Type feedback_type, XmlPullParser xml, Context context)
@@ -66,8 +67,8 @@ public class Event
         return i;
     }
 
-    public Feedback.State getState() {
-        return state;
+    public Feedback.Valence getValence() {
+        return valence;
     }
 
     public void release()
@@ -82,6 +83,10 @@ public class Event
             String from = xml.getAttributeValue(null, "from");
             String equals = xml.getAttributeValue(null, "equals");
             String to = xml.getAttributeValue(null, "to");
+
+            String valence_str = xml.getAttributeValue(null, "valence");
+            if(valence_str != null)
+                valence = Feedback.Valence.valueOf(valence_str);
 
             if(equals != null)
             {
@@ -100,7 +105,7 @@ public class Event
         }
         catch(IOException | XmlPullParserException e)
         {
-            Log.e(_tag, "error parsing config file", e);
+            Log.e(tag, "error parsing config file", e);
         }
     }
 
@@ -127,6 +132,6 @@ public class Event
     @Override
     public String toString()
     {
-        return _type.toString() + "_" + _id;
+        return type.toString() + "_" + id;
     }
 }

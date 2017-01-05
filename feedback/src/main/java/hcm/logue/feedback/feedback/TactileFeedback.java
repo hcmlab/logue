@@ -41,21 +41,19 @@ import hcm.ssj.myo.Vibrate2Command;
  */
 public class TactileFeedback extends Feedback
 {
-    Activity _activity;
+    Activity activity;
 
-    boolean _firstCall = true;
-    Myo _myo = null;
-    Vibrate2Command _cmd = null;
+    boolean firstCall = true;
+    Myo myo = null;
+    Vibrate2Command cmd = null;
 
-    TactileEvent _lastEvent = null;
-    long _lastExecutionTime = 0;
-    long _lock = 0;
-    byte _intensityNew[] = null;
+    long lock = 0;
+    byte intensityNew[] = null;
 
     public TactileFeedback(Activity activity)
     {
-        _activity = activity;
-        _type = Type.Tactile;
+        this.activity = activity;
+        type = Type.Tactile;
     }
 
     public void firstCall()
@@ -75,68 +73,58 @@ public class TactileFeedback extends Feedback
 
         Console.print("connected to Myo");
 
-        _myo = hub.getConnectedDevices().get(0);
-        _cmd = new Vibrate2Command(hub);
+        myo = hub.getConnectedDevices().get(0);
+        cmd = new Vibrate2Command(hub);
 
-        _firstCall = false;
+        firstCall = false;
     }
 
     @Override
-    public void execute(Event event)
+    public boolean execute(Event event)
     {
-        if(_firstCall)
+        if(firstCall)
             firstCall();
 
         //update only if the global lock has passed
-        if(System.currentTimeMillis() < _lock)
+        if(System.currentTimeMillis() < lock)
         {
-            Log.i(_name, "ignoring event, lock active for another " + (_lock - System.currentTimeMillis()) + "ms");
-            return;
+            Log.i(name, "ignoring event, lock active for another " + (lock - System.currentTimeMillis()) + "ms");
+            return false;
         }
 
         TactileEvent ev = (TactileEvent) event;
-
-        if(ev == null)
-        {
-            _lastEvent = null;
-            return;
-        }
-
-        if(ev == _lastEvent)
+        if(ev == lastEvent)
         {
             //check lock
             //only execute if enough time has passed since last execution of this instance
-            if (ev.lockSelf == -1 || System.currentTimeMillis() - _lastExecutionTime < ev.lockSelf)
-                return;
+            if (ev.lockSelf == -1 || System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
+                return false;
 
             if(ev.multiplier != 1)
             {
-                _intensityNew = multiply(_intensityNew, ev.multiplier);
+                intensityNew = multiply(intensityNew, ev.multiplier);
             }
 
-            Log.i(_name, "vibration " +  ev.duration[0] + "/" + (int)_intensityNew[0]);
-            _cmd.vibrate(_myo, ev.duration, _intensityNew);
-
-            _lastExecutionTime = System.currentTimeMillis();
+            Log.i(name, "vibration " +  ev.duration[0] + "/" + (int) intensityNew[0]);
+            cmd.vibrate(myo, ev.duration, intensityNew);
         }
         else
         {
-            Log.i(_name, "vibration " +  ev.duration[0] + "/" + (int)ev.intensity[0]);
-            _cmd.vibrate(_myo, ev.duration, ev.intensity);
+            Log.i(name, "vibration " +  ev.duration[0] + "/" + (int)ev.intensity[0]);
+            cmd.vibrate(myo, ev.duration, ev.intensity);
 
-            _lastExecutionTime = System.currentTimeMillis();
-            _lastEvent = ev;
-
-            if(_intensityNew == null)
-                _intensityNew = new byte[ev.intensity.length];
-            System.arraycopy(ev.intensity, 0, _intensityNew, 0, ev.intensity.length);
+            if(intensityNew == null)
+                intensityNew = new byte[ev.intensity.length];
+            System.arraycopy(ev.intensity, 0, intensityNew, 0, ev.intensity.length);
         }
 
         //set lock
         if(ev.lock > 0)
-            _lock = System.currentTimeMillis() + (long) ev.lock;
+            lock = System.currentTimeMillis() + (long) ev.lock;
         else
-            _lock = 0;
+            lock = 0;
+
+        return true;
     }
 
     public byte[] multiply(byte[] src, float mult)

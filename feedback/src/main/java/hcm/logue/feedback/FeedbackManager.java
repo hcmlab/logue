@@ -44,60 +44,65 @@ public class FeedbackManager implements Runnable {
 
     private static int MANAGER_TICK_LENGTH = 100; //ms
 
-    protected String _tag = "Logue_FeedbackManager";
+    protected String tag = "Logue_FeedbackManager";
 
-    protected Activity _activity;
-    protected ArrayList<hcm.ssj.core.EventChannel> _comm;
+    protected Activity activity;
+    protected ArrayList<hcm.ssj.core.EventChannel> comm;
+    protected Options options;
 
-    protected boolean _terminate = false;
-    protected boolean _safeToKill = false;
+    protected boolean terminate = false;
+    protected boolean safeToKill = false;
 
-    protected ArrayList<Feedback> _classes = new ArrayList<Feedback>();
+    protected ArrayList<Feedback> classes = new ArrayList<Feedback>();
 
-    protected int _lastBehavEventID = -1;
+    protected int lastBehavEventID = -1;
 
     protected int level = 0;
-    private long lastDesireableState = 0;
-    private long progresisonTimeout = 0;
+    private long lastDesireableState;
+    private long lastUndesireableState;
+    private long progressionTimeout = 120000; //2 minutes
+    private long regressionTimeout = 600000; //10 minutes
     private int maxLevel = 3;
 
     public FeedbackManager(Activity act)
     {
-        _activity = act;
-        _comm = new ArrayList<>();
+        activity = act;
+        options = new Options();
+        comm = new ArrayList<>();
     }
 
     public void registerEventChannel(hcm.ssj.core.EventChannel ch)
     {
-        _comm.add(ch);
+        comm.add(ch);
     }
 
     public void close()
     {
-        _terminate = true;
-        while(!_safeToKill)
+        terminate = true;
+        while(!safeToKill)
             try { Thread.sleep(200); }
             catch (Exception e) {}
     }
 
     public void initClasses()
     {
-        Event ev = _classes.get(0).getEvents().get(0);
+        Event ev = classes.get(0).getEvents().get(0);
         if(ev != null)
-            _classes.get(0).execute(ev);
+            classes.get(0).execute(ev);
     }
 
     public ArrayList<Feedback> getClasses()
     {
-        return _classes;
+        return classes;
     }
 
     @Override
     public void run()
     {
-        _terminate = false;
+        terminate = false;
+        lastDesireableState = lastUndesireableState = System.currentTimeMillis();
 
-        while(!_terminate)
+        while(!terminate)
         {
             try {
                 update();
@@ -105,40 +110,40 @@ public class FeedbackManager implements Runnable {
             }
             catch (Exception e)
             {
-                Log.e(_tag, "exception in update loop", e);
+                Log.e(tag, "exception in update loop", e);
             }
         }
 
         //shut down
-        for(Feedback f : _classes)
+        for(Feedback f : classes)
         {
             f.release();
         }
 
-        _safeToKill = true;
+        safeToKill = true;
     }
 
     public void update() {
 
-        if(_comm == null)
+        if(comm == null)
             return;
 
         hcm.ssj.core.event.Event behavEvent = null;
 
-        for (hcm.ssj.core.EventChannel ch : _comm)
+        for (hcm.ssj.core.EventChannel ch : comm)
         {
             do
             {
-                behavEvent = ch.getEvent(_lastBehavEventID + 1, false);
+                behavEvent = ch.getEvent(lastBehavEventID + 1, false);
                 if (behavEvent != null)
                 {
-                    _lastBehavEventID = behavEvent.id;
+                    lastBehavEventID = behavEvent.id;
                     process(behavEvent);
                 }
-            } while (behavEvent != null && !_terminate);
+            } while (behavEvent != null && !terminate);
         }
 
-        for(Feedback i : _classes)
+        for(Feedback i : classes)
         {
             i.update();
         }
@@ -146,30 +151,38 @@ public class FeedbackManager implements Runnable {
 
     public void process(hcm.ssj.core.event.Event behavEvent) {
 
-        if(_classes.size() == 0)
+        if(classes.size() == 0)
             return;
 
         //validate feedback
-        for(Feedback i : _classes)
+        for(Feedback i : classes)
         {
-            if(i.getLevel() == level && i.getState() == Feedback.State.Desirable)
+            if(i.getLevel() == level)
             {
-                lastDesireableState = System.currentTimeMillis();
+                if(i.getValence() == Feedback.Valence.Desirable)
+                {
+                    lastDesireableState = System.currentTimeMillis();
+                }
+                else if(i.getValence() == Feedback.Valence.Undesirable)
+                {
+                    lastUndesireableState = System.currentTimeMillis();
+                }
             }
         }
 
         //if all current feedback classes are in a non desirable state, check if we should progress to next level
-        if(System.currentTimeMillis() > lastDesireableState + progresisonTimeout)
-        {
-            //TODO: also go back if everything is peachy
+        if (System.currentTimeMillis() - progressionTimeout > lastDesireableState && level < maxLevel) {
             level++;
-            if(level > maxLevel) level = maxLevel;
-
             lastDesireableState = System.currentTimeMillis();
+        }
+        //if all current feedback classes are in a desirable state, check if we can go back to the previous level
+        else if (System.currentTimeMillis() - regressionTimeout > lastUndesireableState && level > 0) {
+            level--;
+            lastUndesireableState = System.currentTimeMillis();
         }
 
         //execute feedback
-        for(Feedback i : _classes)
+        for(Feedback i : classes)
         {
             if(i.getLevel() == level)
                 i.process(behavEvent);
@@ -186,8 +199,8 @@ public class FeedbackManager implements Runnable {
             if(parser.getEventType() == XmlPullParser.START_TAG && parser.getName().equalsIgnoreCase("class"))
             {
                 //parse feedback classes
-                Feedback c = Feedback.create(parser, _activity);
-                _classes.add(c);
+                Feedback c = Feedback.create(parser, activity);
+                classes.add(c);
             }
             else if(parser.getEventType() == XmlPullParser.END_TAG && parser.getName().equalsIgnoreCase("feedback"))
                 break; //jump out once we reach end tag for classes
@@ -195,12 +208,12 @@ public class FeedbackManager implements Runnable {
 
         parser.require(XmlPullParser.END_TAG, null, "feedback");
 
-        Console.print("loaded " + _classes.size() + " classes");
+        Console.print("loaded " + classes.size() + " classes");
     }
 
     public void load(String filename) throws IOException, XmlPullParserException
     {
-        InputStream in = _activity.getAssets().open(filename);
+        InputStream in = activity.getAssets().open(filename);
 
         XmlPullParser parser = Xml.newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
@@ -212,11 +225,28 @@ public class FeedbackManager implements Runnable {
             switch(parser.getEventType())
             {
                 case XmlPullParser.START_TAG:
+                    if(parser.getName().equalsIgnoreCase("options"))
+                    {
+                        options.load(parser);
+                    }
                     if(parser.getName().equalsIgnoreCase("feedback"))
                     {
                         load(parser);
                     }
+                    break;
             }
+        }
+
+        if(options.getOption("progressionTimeout") != null)
+            progressionTimeout = (int)(options.getOptionF("progressionTimeout") * 1000);
+        if(options.getOption("regressionTimeout") != null)
+            regressionTimeout = (int)(options.getOptionF("regressionTimeout") * 1000);
+
+        //find max progression level
+        maxLevel = 0;
+        for(Feedback i : classes) {
+            if(i.getLevel() > maxLevel)
+                maxLevel = i.getLevel();
         }
 
         in.close();
@@ -224,7 +254,7 @@ public class FeedbackManager implements Runnable {
 
     public void addFeedbackListener(FeedbackListener listener)
     {
-        for(Feedback i : _classes)
+        for(Feedback i : classes)
         {
             i.addFeedbackListener(listener);
         }
