@@ -1,0 +1,31 @@
+<!--
+  ~ config.xml
+  ~ Copyright (c) 2015
+  ~ Author: Ionut Damian
+  ~ ******************************************************
+  ~ This file is part of the Logue project developed at the Lab for Human Centered Multimedia
+  ~ of the University of Augsburg.
+  ~
+  ~ The applications and libraries are free software; you can redistribute them and/or modify them
+  ~ under the terms of the GNU General Public License as published by the Free Software
+  ~ Foundation; either version 3 of the License, or any later version.
+  ~
+  ~ The software is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this library; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  -->
+
+<logue>
+	<feedback>
+        <class type="tactile">
+            <behaviour name="BodyEnergy" event="OverallActivation" sender="SSJ"/>
+            <event from="0.0" to="0.8" duration="500" intensity="70" timeout="10000"/>
+            <event from="2.0" to="999" duration="500,500,500" intensity="70,0,70" timeout="10000"/>
+        </class>
+	</feedback>
+</logue>

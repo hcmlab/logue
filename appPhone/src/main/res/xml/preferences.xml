@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ preferences.xml
+  ~ Copyright (c) 2015
+  ~ Author: Ionut Damian
+  ~ ******************************************************
+  ~ This file is part of the Logue project developed at the Lab for Human Centered Multimedia
+  ~ of the University of Augsburg.
+  ~
+  ~ The applications and libraries are free software; you can redistribute them and/or modify them
+  ~ under the terms of the GNU General Public License as published by the Free Software
+  ~ Foundation; either version 3 of the License, or any later version.
+  ~
+  ~ The software is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this library; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  -->
+
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="@string/pref_catPipeline"
+        android:key="CAT_PIPELINE">
+
+        <ListPreference
+            android:key="FEEDBACK"
+            android:title="@string/pref_feedbackTitle"
+            android:summary="@string/pref_feedbackSummary"
+            android:entries="@array/pref_feedbackTypes"
+            android:entryValues="@array/pref_feedbackTypes"/>
+
+        <ListPreference
+            android:key="AUDIO"
+            android:title="@string/pref_useAudioTitle"
+            android:summary="@string/pref_useAudioSummary"
+            android:entries="@array/pref_useAudioKeys"
+            android:entryValues="@array/pref_useAudioKeys"/>
+
+        <CheckBoxPreference
+            android:key="MYO"
+            android:title="@string/pref_UseMyoTitle"
+            android:summary="@string/pref_UseMyoSummary" />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_catOptions"
+        android:key="CAT_OPTIONS">
+
+        <hcm.logue.phone.SeekBarPreference
+            android:defaultValue="50"
+            android:dialogMessage="@string/pref_CountdownThresMsg"
+            android:key="COUNTDOWN"
+            android:max="60"
+            android:summary=""
+            android:text="@string/pref_CountdownThresUnit"
+            android:title="@string/pref_CountdownThresTitle" />
+
+        <hcm.logue.phone.SeekBarPreference
+            android:defaultValue="50"
+            android:dialogMessage="@string/pref_IntensityThresMsg"
+            android:key="VAD_THRESHOLD"
+            android:max="100"
+            android:summary=""
+            android:text="@string/pref_IntensityThresUnit"
+            android:title="@string/pref_IntensityThresTitle" />
+
+        <hcm.logue.phone.SeekBarPreference
+            android:defaultValue="50"
+            android:dialogMessage="@string/pref_AvgWindowMsg"
+            android:key="MVGAVG_WINDOW"
+            android:max="120"
+            android:summary=""
+            android:text="@string/pref_AvgWindowUnit"
+            android:title="@string/pref_AvgWindowTitle" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ AndroidManifest.xml
+  ~ Copyright (c) 2015
+  ~ Author: Ionut Damian
+  ~ ******************************************************
+  ~ This file is part of the Logue project developed at the Lab for Human Centered Multimedia
+  ~ of the University of Augsburg.
+  ~
+  ~ The applications and libraries are free software; you can redistribute them and/or modify them
+  ~ under the terms of the GNU General Public License as published by the Free Software
+  ~ Foundation; either version 3 of the License, or any later version.
+  ~
+  ~ The software is distributed in the hope that it will be useful, but WITHOUT
+  ~ ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+  ~ FOR A PARTICULAR PURPOSE.
+  ~ See the GNU General Public License for more details.
+  ~
+  ~ You should have received a copy of the GNU General Public License along
+  ~ with this library; if not, write to the Free Software Foundation, Inc.,
+  ~ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
+  -->
+
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="hcm.logue.glass"
+    android:versionCode="5"
+    android:versionName="0.2.0" >
+
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="com.google.android.glass.permission.DEVELOPMENT" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        android:immersive="true"
+        android:largeHeap = "true" >
+        <activity
+            android:name="hcm.logue.glass.MainActivity"
+            android:configChanges="orientation|screenSize"
+            android:icon="@drawable/ic_glass_logo"
+            android:label="@string/title_activity_main" >
+            <intent-filter>
+                <action android:name="com.google.android.glass.action.VOICE_TRIGGER" />
+
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <meta-data
+                android:name="com.google.android.glass.VoiceTrigger"
+                android:resource="@xml/voice_trigger" />
+        </activity>
+    </application>
+
+</manifest>
