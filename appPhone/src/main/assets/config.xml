@@ -32,7 +32,7 @@
         </class>
         <class type="audio" level="1">
             <behaviour name="BodyEnergy" event="OverallActivation" sender="SSJ"/>
-            <event from="3.0" to="999" name="sounds/blop.wav" valence="Undesirable" intensity="1.0"/>
+            <event from="3.0" to="999" name="sounds/blop.mp3" valence="Undesirable" intensity="1.0"/>
         </class>
 	</feedback>
 </logue>

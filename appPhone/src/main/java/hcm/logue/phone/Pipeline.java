@@ -69,9 +69,8 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
     enum FeedbackType
     {
         None,
-        Visual,
-        Haptic,
-        VisualAndHaptic
+        Local,
+        Remote
     }
 
     enum AudioSource
@@ -90,7 +89,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
 
     private boolean _useMyo = false;
     private AudioSource _audioSource = AudioSource.None;
-    private FeedbackType _feedback = FeedbackType.Haptic;
+    private FeedbackType _feedback = FeedbackType.Local;
 
     private boolean _terminate = false;
     private TheFramework _ssj;
@@ -139,7 +138,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
             BluetoothEventWriter blw = null;
             SignalPainter paint = null;
 
-            if (_feedback == FeedbackType.Visual)
+            if (_feedback == FeedbackType.Remote)
             {
                 //visual feedback requires an HMD to be connected via bluetooth
                 blw = new BluetoothEventWriter();
@@ -147,7 +146,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
                 blw.options.connectionType.set(BluetoothConnection.Type.SERVER);
                 _ssj.addComponent(blw);
             }
-            if (_feedback == FeedbackType.Haptic)
+            if (_feedback == FeedbackType.Local)
             {
                 _feedbackManager = new FeedbackManager(_act);
 
@@ -429,14 +428,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         else if(key.equalsIgnoreCase("AUDIO"))
             _audioSource = AudioSource.valueOf(sharedPreferences.getString(key, _audioSource.toString()));
         else if(key.equalsIgnoreCase("FEEDBACK"))
-        {
             _feedback = FeedbackType.valueOf(sharedPreferences.getString(key, _feedback.toString()));
-            if(_feedback == FeedbackType.Haptic || _feedback == FeedbackType.VisualAndHaptic)
-            {
-                _useMyo = true;
-                _pref.edit().putBoolean("MYO", _useMyo).commit();
-            }
-        }
     }
 
     public Status getStatus()
