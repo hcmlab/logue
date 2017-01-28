@@ -20,7 +20,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.logue.feedback.feedback;
+package hcm.logue.feedback.classes;
 
 import android.app.Activity;
 import android.os.SystemClock;
@@ -30,8 +30,8 @@ import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 
 import hcm.logue.feedback.Console;
-import hcm.logue.feedback.feedback.events.Event;
-import hcm.logue.feedback.feedback.events.TactileEvent;
+import hcm.logue.feedback.events.Event;
+import hcm.logue.feedback.events.TactileEvent;
 import hcm.ssj.core.Cons;
 import hcm.ssj.myo.Vibrate2Command;
 

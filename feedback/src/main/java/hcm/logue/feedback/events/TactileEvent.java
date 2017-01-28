@@ -1,5 +1,5 @@
 /*
- * VisualInstance.java
+ * TactileInstance.java
  * Copyright (c) 2015
  * Author: Ionut Damian
  * *****************************************************
@@ -20,58 +20,46 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.logue.feedback.feedback.events;
+package hcm.logue.feedback.events;
 
 import android.content.Context;
-import android.content.res.AssetFileDescriptor;
-import android.media.SoundPool;
 import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
-import hcm.logue.feedback.feedback.Feedback;
+import hcm.logue.feedback.classes.Feedback;
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class AudioEvent extends Event
+public class TactileEvent extends Event
 {
-    Context _context = null;
+    public int[] duration;
+    public byte[] intensity;
 
-    public AssetFileDescriptor _afd = null;
-
-    public float intensity = 1;
     public int lock = 0;
     public int lockSelf = 0;
+
     public float multiplier = 1f; //in case of lock, intensity is multiplied
 
-    public int soundId;
-
-    public AudioEvent()
+    public TactileEvent()
     {
-        type = Feedback.Type.Audio;
+        type = Feedback.Type.Tactile;
     }
 
     protected void load(XmlPullParser xml, Context context)
     {
         super.load(xml, context);
-        _context = context;
 
         try
         {
-            String name = xml.getAttributeValue(null, "name");
-            if(name != null)
-            {
-                _afd =  context.getAssets().openFd(name);
-            }
-            else
-                throw new IOException("no sound defined");
+            xml.require(XmlPullParser.START_TAG, null, "event");
 
-            String intensity_str = xml.getAttributeValue(null, "intensity");
-            if(intensity_str != null)
-                intensity = Float.valueOf(intensity_str);
+            intensity = parseByteArray(xml.getAttributeValue(null, "intensity"), ",");
+            duration = parseIntArray(xml.getAttributeValue(null, "duration"), ",");
 
             String lock_str = xml.getAttributeValue(null, "lock");
             if(lock_str != null)
@@ -85,22 +73,9 @@ public class AudioEvent extends Event
             if(timeoutMult_str != null)
                 multiplier = Float.valueOf(timeoutMult_str);
         }
-        catch(IOException e)
+        catch(IOException | XmlPullParserException e)
         {
             Log.e(tag, "error parsing config file", e);
-        }
-    }
-
-    public void registerWithPlayer(SoundPool player)
-    {
-        try
-        {
-            soundId = player.load(_afd, 1);
-            _afd.close();
-        }
-        catch (IOException e)
-        {
-            Log.e(tag, "error loading audio files", e);
         }
     }
 }

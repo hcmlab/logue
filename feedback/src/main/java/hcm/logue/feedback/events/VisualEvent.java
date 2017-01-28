@@ -1,5 +1,5 @@
 /*
- * TactileInstance.java
+ * VisualInstance.java
  * Copyright (c) 2015
  * Author: Ionut Damian
  * *****************************************************
@@ -20,34 +20,34 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.logue.feedback.feedback.events;
+package hcm.logue.feedback.events;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.util.Log;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
+import java.io.InputStream;
 
-import hcm.logue.feedback.feedback.Feedback;
+import hcm.logue.feedback.classes.Feedback;
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class TactileEvent extends Event
+public class VisualEvent extends Event
 {
-    public int[] duration;
-    public byte[] intensity;
+    public Drawable icons[];
 
+    public int dur = 0;
     public int lock = 0;
-    public int lockSelf = 0;
+    public float brightness = 1;
 
-    public float multiplier = 1f; //in case of lock, intensity is multiplied
-
-    public TactileEvent()
+    public VisualEvent()
     {
-        type = Feedback.Type.Tactile;
+        type = Feedback.Type.Visual;
     }
 
     protected void load(XmlPullParser xml, Context context)
@@ -58,20 +58,30 @@ public class TactileEvent extends Event
         {
             xml.require(XmlPullParser.START_TAG, null, "event");
 
-            intensity = parseByteArray(xml.getAttributeValue(null, "intensity"), ",");
-            duration = parseIntArray(xml.getAttributeValue(null, "duration"), ",");
+            int num = (xml.getAttributeValue(null, "icon2") != null) ? 2 : 1;
+            icons = new Drawable[num];
+
+            InputStream icon_is = context.getAssets().open(xml.getAttributeValue(null, "icon1"));
+            icons[0] = Drawable.createFromStream(icon_is, null);
+
+            String icon2_str = xml.getAttributeValue(null, "icon2");
+            if(icon2_str != null)
+            {
+                InputStream icon_is2 = context.getAssets().open(icon2_str);
+                icons[1] = Drawable.createFromStream(icon_is2, null);
+            }
+
+            String bright_str = xml.getAttributeValue(null, "brightness");
+            if (bright_str != null)
+                brightness = Float.valueOf(bright_str);
+
+            String dur_str = xml.getAttributeValue(null, "dur");
+            if (dur_str != null)
+                dur = Integer.valueOf(dur_str);
 
             String lock_str = xml.getAttributeValue(null, "lock");
-            if(lock_str != null)
+            if (lock_str != null)
                 lock = Integer.valueOf(lock_str);
-
-            lock_str = xml.getAttributeValue(null, "lockSelf");
-            if(lock_str != null)
-                lockSelf = Integer.valueOf(lock_str);
-
-            String timeoutMult_str = xml.getAttributeValue(null, "multiplier");
-            if(timeoutMult_str != null)
-                multiplier = Float.valueOf(timeoutMult_str);
         }
         catch(IOException | XmlPullParserException e)
         {

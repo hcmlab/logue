@@ -21,11 +21,21 @@
   -->
 
 <logue>
+    <options>
+        <option name="progressionTimeout">2</option>
+        <option name="regressionTimeout">2</option>
+    </options>
 	<feedback>
-        <class type="tactile">
+        <class type="audio" level="0">
             <behaviour name="BodyEnergy" event="OverallActivation" sender="SSJ"/>
-            <event from="0.0" to="0.8" duration="500" intensity="70" timeout="10000"/>
-            <event from="2.0" to="999" duration="500,500,500" intensity="70,0,70" timeout="10000"/>
+            <event from="0.0" to="3.0" name="sounds/blop.mp3" valence="Undesirable"/>
+            <!--<event from="3.0" to="999" name="sounds/buzz.wav" valence="Undesirable"/>-->
+        </class>
+        <class type="audio" level="1">
+            <behaviour name="BodyEnergy" event="OverallActivation" sender="SSJ"/>
+            <!--<event from="0.0" to="3.0" name="sounds/buzz.wav" valence="Desirable"/>-->
+            <!--<event from="3.0" to="999" name="sounds/buzz.wav" valence="Undesirable"/>-->
+            <event from="0" to="3" icon1="ok.jpg" valence="Undesirable"/>
         </class>
 	</feedback>
 </logue>

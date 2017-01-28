@@ -20,7 +20,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.logue.feedback.feedback;
+package hcm.logue.feedback.classes;
 
 import android.app.Activity;
 import android.content.Context;
@@ -33,8 +33,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import hcm.logue.feedback.behaviour.Behaviour;
-import hcm.logue.feedback.feedback.events.Event;
+import hcm.logue.feedback.behaviours.Behaviour;
+import hcm.logue.feedback.events.Event;
 
 
 /**
@@ -45,7 +45,6 @@ public abstract class Feedback
     public String name = "Logue_Feedback_Feedback";
     protected String tag = "Logue_Feedback";
     protected Type type;
-    protected int id;
     protected Behaviour behaviour;
     protected ArrayList<Event> events = new ArrayList<Event>();
     protected Event lastEvent = null;

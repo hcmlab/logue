@@ -33,9 +33,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 
-import hcm.logue.feedback.feedback.Feedback;
-import hcm.logue.feedback.feedback.FeedbackListener;
-import hcm.logue.feedback.feedback.events.Event;
+import hcm.logue.feedback.classes.Feedback;
+import hcm.logue.feedback.classes.FeedbackListener;
+import hcm.logue.feedback.events.Event;
 
 /**
  * Created by Johnny on 02.12.2014.

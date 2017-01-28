@@ -45,11 +45,7 @@ import hcm.logue.feedback.Options;
 import hcm.logue.glass.util.ConfigUtils;
 import hcm.ssj.audio.AudioProvider;
 import hcm.ssj.audio.Microphone;
-import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.TheFramework;
-import hcm.ssj.ioput.BluetoothConnection;
-import hcm.ssj.ioput.BluetoothEventReader;
-import hcm.ssj.ioput.BluetoothWriter;
 
 public class MainActivity extends Activity {
 
@@ -87,25 +83,25 @@ public class MainActivity extends Activity {
         audio.options.scale.set(false);
         mic.addProvider(audio);
 
-        EventChannel channel = null;
-        BluetoothWriter socket = new BluetoothWriter();
-        socket.options.connectionName.set("audio");
-        socket.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-        socket.options.serverAddr.set(PHONE_MAC);
-        ssj.addConsumer(socket, audio, 0.1, 0);
+//        EventChannel channel = null;
+//        BluetoothWriter socket = new BluetoothWriter();
+//        socket.options.connectionName.set("audio");
+//        socket.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+//        socket.options.serverAddr.set(PHONE_MAC);
+//        ssj.addConsumer(socket, audio, 0.1, 0);
 
-        BluetoothEventReader eventReader = new BluetoothEventReader();
-        eventReader.options.connectionName.set("logue");
-        eventReader.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-        eventReader.options.serverAddr.set(PHONE_MAC);
-        channel = ssj.registerEventProvider(eventReader);
-        ssj.addComponent(eventReader);
+//        BluetoothEventReader eventReader = new BluetoothEventReader();
+//        eventReader.options.connectionName.set("logue");
+//        eventReader.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+//        eventReader.options.serverAddr.set(PHONE_MAC);
+//        channel = ssj.registerEventProvider(eventReader);
+//        ssj.addComponent(eventReader);
 
         //setup up the logic
         conf = new Options();
         console = new Console();
         man = new FeedbackManager(this);
-        man.registerEventChannel(channel);
+//        man.registerEventChannel(channel);
 
         //load config file
         load(man, conf, "config.xml", false);

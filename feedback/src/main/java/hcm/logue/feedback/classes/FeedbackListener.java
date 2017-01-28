@@ -1,6 +1,6 @@
-package hcm.logue.feedback.feedback;
+package hcm.logue.feedback.classes;
 
-import hcm.logue.feedback.feedback.events.Event;
+import hcm.logue.feedback.events.Event;
 
 /**
  * Created by Johnny on 03.06.2016.

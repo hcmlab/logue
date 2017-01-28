@@ -20,7 +20,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.logue.feedback.feedback.events;
+package hcm.logue.feedback.events;
 
 import android.content.Context;
 import android.util.Log;
@@ -30,7 +30,7 @@ import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
-import hcm.logue.feedback.feedback.Feedback;
+import hcm.logue.feedback.classes.Feedback;
 
 /**
  * Created by Johnny on 01.12.2014.

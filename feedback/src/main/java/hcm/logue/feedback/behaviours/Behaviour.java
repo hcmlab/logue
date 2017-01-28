@@ -20,7 +20,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.logue.feedback.behaviour;
+package hcm.logue.feedback.behaviours;
 
 import android.content.Context;
 import android.util.Log;

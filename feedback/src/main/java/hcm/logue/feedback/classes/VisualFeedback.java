@@ -20,7 +20,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.logue.feedback.feedback;
+package hcm.logue.feedback.classes;
 
 import android.app.Activity;
 import android.content.Context;
@@ -42,8 +42,8 @@ import org.xmlpull.v1.XmlPullParserException;
 import java.io.IOException;
 import java.security.InvalidParameterException;
 
-import hcm.logue.feedback.feedback.events.Event;
-import hcm.logue.feedback.feedback.events.VisualEvent;
+import hcm.logue.feedback.events.Event;
+import hcm.logue.feedback.events.VisualEvent;
 
 
 /**
@@ -53,7 +53,8 @@ public class VisualFeedback extends Feedback
 {
     Activity activity;
 
-    protected static int s_id = 0;
+    protected static int s_id[] = new int[32]; //max levels
+    protected int id;
     protected ImageSwitcher img[];
 
     protected Drawable defIcon[] = null;
@@ -65,8 +66,6 @@ public class VisualFeedback extends Feedback
     public VisualFeedback(Activity activity)
     {
         this.activity = activity;
-        id = s_id++;
-
         type = Type.Visual;
     }
 
@@ -161,6 +160,7 @@ public class VisualFeedback extends Feedback
         }
 
         super.load(xml, context);
+        id = s_id[level]++;
 
         //default icons
         defIcon = ((VisualEvent) events.get(0)).icons;
@@ -180,34 +180,42 @@ public class VisualFeedback extends Feedback
 
         for(int i = 0; i < rows; ++i)
         {
-            if (table.getChildCount() == 0) //if this is the first visual class, init rows
+            if (id == 0) //if this is the first visual class, init rows
                 table.addView(new TableRow(context), i);
 
             TableRow tr = (TableRow) table.getChildAt(i);
             tr.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
 
-            img[i] = new ImageSwitcher(context);
-            img[i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
+            //if the image switcher has already been initialized by a class on previous level
+            if(level > 0 && id < s_id[level-1])
+            {
+                img[i] = (ImageSwitcher)tr.getChildAt(id);
+            }
+            else
+            {
+                img[i] = new ImageSwitcher(context);
+                img[i].setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.MATCH_PARENT, TableRow.LayoutParams.MATCH_PARENT, 1f));
 
-            Animation in = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
-            in.setDuration(fade);
-            Animation out = AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
-            out.setDuration(fade);
+                Animation in = AnimationUtils.loadAnimation(context, android.R.anim.fade_in);
+                in.setDuration(fade);
+                Animation out = AnimationUtils.loadAnimation(context, android.R.anim.fade_out);
+                out.setDuration(fade);
 
-            img[i].setInAnimation(in);
-            img[i].setOutAnimation(out);
+                img[i].setInAnimation(in);
+                img[i].setOutAnimation(out);
 
-            img[i].setFactory(new ViewSwitcher.ViewFactory() {
-                @Override
-                public View makeView() {
-                    ImageView imageView = new ImageView(context);
+                img[i].setFactory(new ViewSwitcher.ViewFactory() {
+                    @Override
+                    public View makeView() {
+                        ImageView imageView = new ImageView(context);
 //                    imageView.setScaleType(ImageView.ScaleType.FIT_CENTER);
-                    imageView.setLayoutParams(new ImageSwitcher.LayoutParams(ImageSwitcher.LayoutParams.MATCH_PARENT, ImageSwitcher.LayoutParams.MATCH_PARENT));
-                    return imageView;
-                }
-            });
+                        imageView.setLayoutParams(new ImageSwitcher.LayoutParams(ImageSwitcher.LayoutParams.MATCH_PARENT, ImageSwitcher.LayoutParams.MATCH_PARENT));
+                        return imageView;
+                    }
+                });
 
-            tr.addView(img[i]);
+                tr.addView(img[i]);
+            }
         }
     }
 }

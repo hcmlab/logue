@@ -1,5 +1,5 @@
 /*
- * Loudness.java
+ * Behaviour.java
  * Copyright (c) 2015
  * Author: Ionut Damian
  * *****************************************************
@@ -20,7 +20,7 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  */
 
-package hcm.logue.feedback.behaviour;
+package hcm.logue.feedback.behaviours;
 
 import android.content.Context;
 import android.util.Log;
@@ -29,61 +29,69 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.util.LinkedList;
 
-import hcm.logue.feedback.Console;
 import hcm.ssj.core.event.Event;
+
 
 /**
  * Created by Johnny on 01.12.2014.
  */
-public class Loudness extends Behaviour
+public class KeyPress extends Behaviour
 {
+    protected String _text;
+    protected boolean _isToggle;
+    protected float _lastValue = 0;
 
-    LinkedList<Float> _loudness = new LinkedList<Float>();
-    int _history_size;
+    public boolean checkEvent(Event event)
+    {
+        if (event.name.equalsIgnoreCase(_event)
+        && event.sender.equalsIgnoreCase(_sender)
+        && (_text == null || event.ptrStr().equalsIgnoreCase(_text))
+        && (!_isToggle || event.state == Event.State.COMPLETED))
+            return true;
 
-    @Override
+        return false;
+    }
+
     public float parseEvent(Event event)
     {
-        float loudness = Float.parseFloat(event.ptrStr());
-
-        _loudness.add(loudness);
-        if (_loudness.size() > _history_size)
-            _loudness.removeFirst();
-
-        float value = getAvg(_loudness);
-        Console.print("Loudness_now = " + loudness);
+        float value;
+        if(_isToggle)
+        {
+            value = 1 - _lastValue;
+            _lastValue = value;
+        }
+        else
+        {
+            value = (event.state == Event.State.COMPLETED) ? 0 : 1;
+        }
 
         return value;
     }
 
-    private float getAvg(LinkedList<Float> vec)
-    {
-        if(vec.size() == 0)
-            return 0;
-
-        float sum = 0;
-        for(float i : vec)
-        {
-            sum += i;
-        }
-        return sum / vec.size();
-    }
-
-    @Override
     protected void load(XmlPullParser xml, Context context)
     {
         try
         {
             xml.require(XmlPullParser.START_TAG, null, "behaviour");
+            _text = xml.getAttributeValue(null, "text");
+
+            String toggle = xml.getAttributeValue(null, "toggle");
+            if(toggle == null || toggle.compareToIgnoreCase("false") == 0)
+                _isToggle = false;
+            else
+                _isToggle = true;
         }
-        catch (XmlPullParserException | IOException e)
+        catch(IOException | XmlPullParserException e)
         {
             Log.e(_tag, "error parsing config file", e);
         }
 
-        _history_size = Integer.getInteger(xml.getAttributeValue(null, "history"), 5);
         super.load(xml, context);
+    }
+
+    public float getLastValue()
+    {
+        return _lastValue;
     }
 }
