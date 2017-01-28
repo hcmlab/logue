@@ -28,11 +28,11 @@
 	<feedback>
         <class type="audio" level="0">
             <behaviour name="BodyEnergy" event="OverallActivation" sender="SSJ"/>
-            <event from="0.0" to="3.0" name="sounds/blop.mp3" valence="Undesirable"/>
+            <event from="3.0" to="999" name="sounds/blop.mp3" valence="Undesirable" intensity="0.3"/>
         </class>
         <class type="audio" level="1">
             <behaviour name="BodyEnergy" event="OverallActivation" sender="SSJ"/>
-            <event from="3.0" to="999" name="sounds/buzz.wav" valence="Undesirable"/>
+            <event from="3.0" to="999" name="sounds/blop.wav" valence="Undesirable" intensity="1.0"/>
         </class>
 	</feedback>
 </logue>
