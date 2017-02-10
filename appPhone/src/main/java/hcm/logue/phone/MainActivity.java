@@ -25,6 +25,7 @@ package hcm.logue.phone;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
@@ -35,6 +36,12 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.jjoe64.graphview.GraphView;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import hcm.ssj.core.TheFramework;
 
@@ -75,6 +82,8 @@ public class MainActivity extends AppCompatActivity
 
         _graph[0].removeAllSeries();
         _graph[1].removeAllSeries();
+
+        checkStrategyFile("default.xml");
 
         _pipe = new Pipeline(this, _graph);
     }
@@ -191,6 +200,47 @@ public class MainActivity extends AppCompatActivity
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    private void checkStrategyFile(String filename)
+    {
+        try
+        {
+            //look for config file on sdcard first
+            File sdcard = Environment.getExternalStorageDirectory();
+            File folder = new File(sdcard.getPath() + "/logue");
+            if (!folder.exists() && !folder.isDirectory())
+            {
+                if (!folder.mkdirs())
+                    Log.e("Activity", "Error creating folder");
+            }
+            File file = new File(folder, filename);
+
+            if (!file.exists())
+            {
+                //if not found, copy the one from assets
+                InputStream from = getAssets().open(filename);
+                OutputStream to = new FileOutputStream(file);
+
+                copyFile(from, to);
+
+                from.close();
+                to.close();
+            }
+        }
+        catch (Exception e)
+        {
+            Log.e(_name, "exception when parsing config file", e);
+        }
+    }
+
+    public static void copyFile(InputStream in, OutputStream out) throws IOException {
+        byte[] buffer = new byte[1024];
+        int read;
+        while((read = in.read(buffer)) != -1){
+            out.write(buffer, 0, read);
         }
     }
 }

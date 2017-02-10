@@ -39,11 +39,22 @@
     <string name="pref_CountdownThresMsg">Duration until pipeline starts</string>
     <string name="pref_CountdownThresUnit">s</string>
     <string name="pref_CountdownThresTitle">Framework Countdown</string>
-    <string name="pref_UseMyoTitle">Myo</string>
-    <string name="pref_UseMyoSummary">Enable or disable use of myo armband</string>
+
+    <string name="pref_FbMyoTitle">Myo</string>
+    <string name="pref_FbMyoSummary">Deliver feedback using the Myo armband (haptic)</string>
+    <string name="pref_FbPhoneTitle">Phone</string>
+    <string name="pref_FbPhoneSummary">Deliver feedback using the smartphone (audio/visual)</string>
+    <string name="pref_FbGlassTitle">Glass</string>
+    <string name="pref_FbGlassSummary">Deliver feedback using Google Glass (audio/visual)</string>
+
+    <string name="pref_FbFileTitle">Strategy File</string>
+    <string name="pref_FbFileSummary">Choose the location of the strategy file</string>
+
     <string name="init">Init</string>
     <string name="pref_useAudioTitle">Audio</string>
     <string name="pref_useAudioSummary">Select source of audio</string>
+    <string name="pref_useAccTitle">Acceleration</string>
+    <string name="pref_useAccSummary">Select source of acceleration</string>
     <string name="pref_catPipeline">Configure Pipeline</string>
     <string name="pref_catOptions">Component Options</string>
     <string name="pref_feedbackTitle">Feedback</string>
@@ -51,8 +62,14 @@
 
     <string-array name="pref_useAudioKeys">
         <item>None</item>
-        <item>Local</item>
-        <item>Bluetooth</item>
+        <item>Phone</item>
+        <item>Glass</item>
+    </string-array>
+
+    <string-array name="pref_useAccKeys">
+        <item>None</item>
+        <item>Phone</item>
+        <item>Myo</item>
     </string-array>
 
     <string-array name="pref_feedbackTypes">

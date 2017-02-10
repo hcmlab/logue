@@ -29,6 +29,8 @@ import android.util.Xml;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -211,9 +213,13 @@ public class FeedbackManager implements Runnable {
         Console.print("loaded " + classes.size() + " classes");
     }
 
-    public void load(String filename) throws IOException, XmlPullParserException
+    public void load(String filename, boolean fromAsset) throws IOException, XmlPullParserException
     {
-        InputStream in = activity.getAssets().open(filename);
+        InputStream in;
+        if(!fromAsset)
+            in = new FileInputStream(new File(filename));
+        else
+            in = activity.getAssets().open(filename);
 
         XmlPullParser parser = Xml.newPullParser();
         parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);

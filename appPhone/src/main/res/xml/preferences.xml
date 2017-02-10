@@ -27,12 +27,25 @@
         android:title="@string/pref_catPipeline"
         android:key="CAT_PIPELINE">
 
-        <ListPreference
-            android:key="FEEDBACK"
-            android:title="@string/pref_feedbackTitle"
-            android:summary="@string/pref_feedbackSummary"
-            android:entries="@array/pref_feedbackTypes"
-            android:entryValues="@array/pref_feedbackTypes"/>
+        <EditTextPreference
+            android:key="FILE"
+            android:title="@string/pref_FbFileTitle"
+            android:summary="@string/pref_FbFileSummary" />
+
+        <CheckBoxPreference
+            android:key="FB_PHONE"
+            android:title="@string/pref_FbPhoneTitle"
+            android:summary="@string/pref_FbPhoneSummary" />
+
+        <CheckBoxPreference
+            android:key="FB_GLASS"
+            android:title="@string/pref_FbGlassTitle"
+            android:summary="@string/pref_FbGlassSummary" />
+
+        <CheckBoxPreference
+            android:key="FB_MYO"
+            android:title="@string/pref_FbMyoTitle"
+            android:summary="@string/pref_FbMyoSummary" />
 
         <ListPreference
             android:key="AUDIO"
@@ -41,10 +54,13 @@
             android:entries="@array/pref_useAudioKeys"
             android:entryValues="@array/pref_useAudioKeys"/>
 
-        <CheckBoxPreference
-            android:key="MYO"
-            android:title="@string/pref_UseMyoTitle"
-            android:summary="@string/pref_UseMyoSummary" />
+        <ListPreference
+            android:key="ACC"
+            android:title="@string/pref_useAccTitle"
+            android:summary="@string/pref_useAccSummary"
+            android:entries="@array/pref_useAccKeys"
+            android:entryValues="@array/pref_useAccKeys"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory
