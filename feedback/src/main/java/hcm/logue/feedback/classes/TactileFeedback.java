@@ -23,12 +23,20 @@
 package hcm.logue.feedback.classes;
 
 import android.app.Activity;
+import android.content.Context;
 import android.os.SystemClock;
 import android.util.Log;
 
 import com.thalmic.myo.Hub;
 import com.thalmic.myo.Myo;
 
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
+import java.security.InvalidParameterException;
+
+import hcm.logue.feedback.BandComm;
 import hcm.logue.feedback.Console;
 import hcm.logue.feedback.events.Event;
 import hcm.logue.feedback.events.TactileEvent;
@@ -41,14 +49,23 @@ import hcm.ssj.myo.Vibrate2Command;
  */
 public class TactileFeedback extends Feedback
 {
+    enum Device
+    {
+        Myo,
+        MsBand
+    }
+
     Activity activity;
 
     boolean firstCall = true;
     Myo myo = null;
+    BandComm msband = null;
     Vibrate2Command cmd = null;
 
     long lock = 0;
     byte intensityNew[] = null;
+
+    Device deviceType = Device.Myo;
 
     public TactileFeedback(Activity activity)
     {
@@ -58,23 +75,30 @@ public class TactileFeedback extends Feedback
 
     public void firstCall()
     {
-        Hub hub = Hub.getInstance();
+        if(deviceType == Device.Myo) {
+            Hub hub = Hub.getInstance();
 
-        long time = SystemClock.elapsedRealtime();
-        while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Cons.WAIT_SENSOR_CONNECT)
+            long time = SystemClock.elapsedRealtime();
+            while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Cons.WAIT_SENSOR_CONNECT) {
+                try {
+                    Thread.sleep(Cons.SLEEP_ON_IDLE);
+                } catch (InterruptedException e) {
+                }
+            }
+
+            if (hub.getConnectedDevices().isEmpty())
+                throw new RuntimeException("device not found");
+
+            Console.print("connected to Myo");
+
+            myo = hub.getConnectedDevices().get(0);
+            cmd = new Vibrate2Command(hub);
+        }
+        else if(deviceType == Device.MsBand)
         {
-            try {
-                Thread.sleep(Cons.SLEEP_ON_IDLE);
-            } catch (InterruptedException e) {}
+            msband = new BandComm(null);
         }
 
-        if (hub.getConnectedDevices().isEmpty())
-            throw new RuntimeException("device not found");
-
-        Console.print("connected to Myo");
-
-        myo = hub.getConnectedDevices().get(0);
-        cmd = new Vibrate2Command(hub);
 
         firstCall = false;
     }
@@ -100,22 +124,34 @@ public class TactileFeedback extends Feedback
             if (ev.lockSelf == -1 || System.currentTimeMillis() - ev.lastExecutionTime < ev.lockSelf)
                 return false;
 
-            if(ev.multiplier != 1)
-            {
-                intensityNew = multiply(intensityNew, ev.multiplier);
+            if(deviceType == Device.Myo) {
+                if (ev.multiplier != 1) {
+                    intensityNew = multiply(intensityNew, ev.multiplier);
+                }
+
+                Log.i(name, "vibration " + ev.duration[0] + "/" + (int) intensityNew[0]);
+                cmd.vibrate(myo, ev.duration, intensityNew);
+            }
+            else if(deviceType == Device.MsBand) {
+                Log.i(name, "vibration " + ev.vibrationType);
+                msband.vibrate(ev.vibrationType);
             }
 
-            Log.i(name, "vibration " +  ev.duration[0] + "/" + (int) intensityNew[0]);
-            cmd.vibrate(myo, ev.duration, intensityNew);
         }
         else
         {
-            Log.i(name, "vibration " +  ev.duration[0] + "/" + (int)ev.intensity[0]);
-            cmd.vibrate(myo, ev.duration, ev.intensity);
+            if(deviceType == Device.Myo) {
+                Log.i(name, "vibration " +  ev.duration[0] + "/" + (int)ev.intensity[0]);
+                cmd.vibrate(myo, ev.duration, ev.intensity);
 
-            if(intensityNew == null)
-                intensityNew = new byte[ev.intensity.length];
-            System.arraycopy(ev.intensity, 0, intensityNew, 0, ev.intensity.length);
+                if(intensityNew == null)
+                    intensityNew = new byte[ev.intensity.length];
+                System.arraycopy(ev.intensity, 0, intensityNew, 0, ev.intensity.length);
+            }
+            else if(deviceType == Device.MsBand) {
+                Log.i(name, "vibration " + ev.vibrationType);
+                msband.vibrate(ev.vibrationType);
+            }
         }
 
         //set lock
@@ -142,5 +178,23 @@ public class TactileFeedback extends Feedback
         }
 
         return dst;
+    }
+
+    protected void load(XmlPullParser xml, final Context context)
+    {
+        try {
+            xml.require(XmlPullParser.START_TAG, null, "class");
+
+            String device_name = xml.getAttributeValue(null, "device");
+            if (device_name != null) {
+                deviceType = Device.valueOf(device_name);
+            }
+        }
+        catch(IOException | XmlPullParserException | InvalidParameterException e)
+        {
+            Log.e(tag, "error parsing config file", e);
+        }
+
+        super.load(xml, context);
     }
 }

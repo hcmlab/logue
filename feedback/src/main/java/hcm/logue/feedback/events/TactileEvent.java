@@ -25,6 +25,8 @@ package hcm.logue.feedback.events;
 import android.content.Context;
 import android.util.Log;
 
+import com.microsoft.band.notifications.VibrationType;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -39,6 +41,7 @@ public class TactileEvent extends Event
 {
     public int[] duration;
     public byte[] intensity;
+    public VibrationType vibrationType = VibrationType.NOTIFICATION_ONE_TONE;
 
     public int lock = 0;
     public int lockSelf = 0;
@@ -60,6 +63,10 @@ public class TactileEvent extends Event
 
             intensity = parseByteArray(xml.getAttributeValue(null, "intensity"), ",");
             duration = parseIntArray(xml.getAttributeValue(null, "duration"), ",");
+
+            String type_str = xml.getAttributeValue(null, "type");
+            if(type_str != null)
+                vibrationType = VibrationType.valueOf(type_str);
 
             String lock_str = xml.getAttributeValue(null, "lock");
             if(lock_str != null)
