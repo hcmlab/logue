@@ -70,6 +70,7 @@
         <item>None</item>
         <item>Phone</item>
         <item>Myo</item>
+        <item>MsBand</item>
     </string-array>
 
     <string-array name="pref_feedbackTypes">

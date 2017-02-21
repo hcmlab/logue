@@ -39,8 +39,8 @@ import hcm.logue.feedback.classes.Feedback;
  */
 public class TactileEvent extends Event
 {
-    public int[] duration;
-    public byte[] intensity;
+    public int[] duration = {500};
+    public byte[] intensity = {(byte)150};
     public VibrationType vibrationType = VibrationType.NOTIFICATION_ONE_TONE;
 
     public int lock = 0;
@@ -61,24 +61,23 @@ public class TactileEvent extends Event
         {
             xml.require(XmlPullParser.START_TAG, null, "event");
 
-            intensity = parseByteArray(xml.getAttributeValue(null, "intensity"), ",");
-            duration = parseIntArray(xml.getAttributeValue(null, "duration"), ",");
+            String str = xml.getAttributeValue(null, "intensity");
+            if(str != null) intensity = parseByteArray(str, ",");
 
-            String type_str = xml.getAttributeValue(null, "type");
-            if(type_str != null)
-                vibrationType = VibrationType.valueOf(type_str);
+            str = xml.getAttributeValue(null, "duration");
+            if(str != null) duration = parseIntArray(str, ",");
 
-            String lock_str = xml.getAttributeValue(null, "lock");
-            if(lock_str != null)
-                lock = Integer.valueOf(lock_str);
+            str = xml.getAttributeValue(null, "type");
+            if(str != null) vibrationType = VibrationType.valueOf(str);
 
-            lock_str = xml.getAttributeValue(null, "lockSelf");
-            if(lock_str != null)
-                lockSelf = Integer.valueOf(lock_str);
+            str = xml.getAttributeValue(null, "lock");
+            if(str != null) lock = Integer.valueOf(str);
 
-            String timeoutMult_str = xml.getAttributeValue(null, "multiplier");
-            if(timeoutMult_str != null)
-                multiplier = Float.valueOf(timeoutMult_str);
+            str = xml.getAttributeValue(null, "lockSelf");
+            if(str != null) lockSelf = Integer.valueOf(str);
+
+            str = xml.getAttributeValue(null, "multiplier");
+            if(str != null) multiplier = Float.valueOf(str);
         }
         catch(IOException | XmlPullParserException e)
         {

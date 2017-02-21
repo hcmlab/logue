@@ -54,6 +54,8 @@ import hcm.ssj.ioput.BluetoothConnection;
 import hcm.ssj.ioput.BluetoothEventWriter;
 import hcm.ssj.ioput.BluetoothProvider;
 import hcm.ssj.ioput.BluetoothReader;
+import hcm.ssj.msband.AccelerationProvider;
+import hcm.ssj.msband.MSBand;
 import hcm.ssj.myo.DynAccelerationProvider;
 import hcm.ssj.myo.Myo;
 import hcm.ssj.praat.Intensity;
@@ -70,7 +72,8 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         None,
         Phone,
 //        Glass,
-        Myo
+        Myo,
+        MsBand
     }
 
     enum AudioSource
@@ -87,8 +90,6 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         Running
     }
 
-    private boolean _fbMyo = false;
-    private boolean _fbPhone = true;
     private boolean _fbGlass = false;
 
     private AudioSource _audioSource = AudioSource.None;
@@ -117,9 +118,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         _pref = PreferenceManager.getDefaultSharedPreferences(a);
         _pref.registerOnSharedPreferenceChangeListener(this);
 
-        _pref.edit().putBoolean("FB_MYO", _fbMyo).commit();
         _pref.edit().putBoolean("FB_GLASS", _fbGlass).commit();
-        _pref.edit().putBoolean("FB_PHONE", _fbPhone).commit();
         _pref.edit().putString("AUDIO", _audioSource.toString()).commit();
         _pref.edit().putString("ACC", _accSource.toString()).commit();
         _pref.edit().putString("FILE", _fbFilePath.toString()).commit();
@@ -145,7 +144,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
 
             BluetoothEventWriter glassEvent = null;
 
-            if (_fbPhone)
+            if (_fbFilePath != null && _fbFilePath.length() > 0)
             {
                 _feedbackManager = new FeedbackManager(_act);
                 _feedbackManager.load(_fbFilePath, false);
@@ -273,7 +272,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
             _ssj.registerEventListener(glassEvent, intensity_channel);
         }
 
-        if (_fbPhone && _feedbackManager != null)
+        if (_feedbackManager != null)
         {
             _feedbackManager.registerEventChannel(sr_channel);
             _feedbackManager.registerEventChannel(intensity_channel);
@@ -323,6 +322,13 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
             acc = new AndroidSensorProvider();
             androidSensor.addProvider(acc);
         }
+        else if (_accSource == AccSource.MsBand)
+        {
+            MSBand band = new MSBand();
+            _ssj.addSensor(band);
+            acc = new AccelerationProvider();
+            band.addProvider(acc);
+        }
         else throw new UnsupportedOperationException("unsupported acc source");
 
         OverallActivation activity = new OverallActivation();
@@ -346,7 +352,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         if (_fbGlass && glassEvents != null) {
             _ssj.registerEventListener(glassEvents, activity_channel);
         }
-        if (_fbPhone && _feedbackManager != null) {
+        if (_feedbackManager != null) {
             _feedbackManager.registerEventChannel(activity_channel);
         }
 
@@ -442,12 +448,8 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
             _ssj.options.countdown.set(sharedPreferences.getInt(key, _ssj.options.countdown.get()));
         else if(key.equalsIgnoreCase("MVGAVG_WINDOW"))
             _activityf.options.window.set((double)sharedPreferences.getInt(key, _activityf.options.window.get().intValue()));
-        else if(key.equalsIgnoreCase("FB_MYO"))
-            _fbMyo = sharedPreferences.getBoolean(key, _fbMyo);
-        else if(key.equalsIgnoreCase("FB_PHONE"))
-            _fbMyo = sharedPreferences.getBoolean(key, _fbMyo);
         else if(key.equalsIgnoreCase("FB_GLASS"))
-            _fbMyo = sharedPreferences.getBoolean(key, _fbMyo);
+            _fbGlass = sharedPreferences.getBoolean(key, _fbGlass);
         else if(key.equalsIgnoreCase("AUDIO"))
             _audioSource = AudioSource.valueOf(sharedPreferences.getString(key, _audioSource.toString()));
         else if(key.equalsIgnoreCase("ACC"))

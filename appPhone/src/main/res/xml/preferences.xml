@@ -33,19 +33,9 @@
             android:summary="@string/pref_FbFileSummary" />
 
         <CheckBoxPreference
-            android:key="FB_PHONE"
-            android:title="@string/pref_FbPhoneTitle"
-            android:summary="@string/pref_FbPhoneSummary" />
-
-        <CheckBoxPreference
             android:key="FB_GLASS"
             android:title="@string/pref_FbGlassTitle"
             android:summary="@string/pref_FbGlassSummary" />
-
-        <CheckBoxPreference
-            android:key="FB_MYO"
-            android:title="@string/pref_FbMyoTitle"
-            android:summary="@string/pref_FbMyoSummary" />
 
         <ListPreference
             android:key="AUDIO"

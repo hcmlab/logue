@@ -27,6 +27,7 @@
 package hcm.logue.feedback;
 
 import android.app.Activity;
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -53,6 +54,8 @@ import com.microsoft.band.tiles.pages.TextButtonData;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+
+import hcm.ssj.core.SSJApplication;
 
 /**
  * Created by Johnny on 01.02.2017.
@@ -254,7 +257,8 @@ public class BandComm {
                 Log.e(this.getClass().getSimpleName(), "Band isn't paired with your phone.");
                 return false;
             }
-            client = BandClientManager.getInstance().create(activity.getApplicationContext(), devices[0]);
+            Context c = (activity == null) ? SSJApplication.getAppContext() : activity.getApplicationContext();
+            client = BandClientManager.getInstance().create(c, devices[0]);
         } else if (ConnectionState.CONNECTED == client.getConnectionState()) {
             return true;
         }
