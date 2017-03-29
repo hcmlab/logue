@@ -100,8 +100,8 @@ public class Behaviour
         {
             xml.require(XmlPullParser.START_TAG, null, "behaviour");
 
-            _event = xml.getAttributeValue(null, "event");
-            _sender = xml.getAttributeValue(null, "sender");
+            _event = xml.getAttributeValue(null, "ssjevent");
+            _sender = xml.getAttributeValue(null, "ssjsender");
         }
         catch(IOException | XmlPullParserException e)
         {
