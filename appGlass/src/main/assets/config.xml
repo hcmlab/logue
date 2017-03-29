@@ -24,21 +24,21 @@
 	<feedback>
         <class type="visual" layout_id="layout_table">
             <behaviour name="SpeechRate" ssjevent="SpeechRate" ssjsender="SSJ" history="5"/>
-            <event from="0.0" to="2.0" icon1="icons/speechrate/orientation_low.png" icon2="icons/feedback/thumb_negative.png"/>
-            <event from="2.0" to="3.6" icon1="icons/speechrate/orientation_med.png" icon2="icons/feedback/thumb_positive.png"/>
-            <event from="3.6" to="999" icon1="icons/speechrate/orientation_high.png" icon2="icons/feedback/thumb_positive.png"/>
+            <event from="0.0" to="2.0" res="icons/speechrate/orientation_low.png, icons/feedback/thumb_negative.png"/>
+            <event from="2.0" to="3.6" res="icons/speechrate/orientation_med.png, icons/feedback/thumb_positive.png"/>
+            <event from="3.6" to="999" res="icons/speechrate/orientation_high.png, icons/feedback/thumb_positive.png"/>
         </class>
         <class type="visual" layout_id="layout_table">
             <behaviour name="BodyEnergy" ssjevent="OverallActivation" ssjsender="SSJ"/>
-            <event from="0.0" to="0.8" icon1="icons/energy/area_low.png" icon2="icons/feedback/thumb_negative.png"/>
-            <event from="0.8" to="2.0" icon1="icons/energy/area_med.png" icon2="icons/feedback/thumb_positive.png"/>
-            <event from="2.0" to="999" icon1="icons/energy/area_high.png" icon2="icons/feedback/thumb_negative.png"/>
+            <event from="0.0" to="0.8" res="icons/energy/area_low.png, icons/feedback/thumb_negative.png"/>
+            <event from="0.8" to="2.0" res="icons/energy/area_med.png, icons/feedback/thumb_positive.png"/>
+            <event from="2.0" to="999" res="icons/energy/area_high.png, icons/feedback/thumb_negative.png"/>
         </class>
         <class type="visual" layout_id="layout_table">
             <behaviour name="Loudness" ssjevent="Intensity" ssjsender="SSJ" history="3"/>
-            <event from="0" to="50" icon1="icons/loudness/quantity_low.png" icon2="icons/feedback/thumb_negative.png"/>
-            <event from="50" to="65" icon1="icons/loudness/quantity_med.png" icon2="icons/feedback/thumb_positive.png"/>
-            <event from="65" to="999" icon1="icons/loudness/quantity_high.png" icon2="icons/feedback/thumb_positive.png"/>
+            <event from="0" to="50" res="icons/loudness/quantity_low.png, icons/feedback/thumb_negative.png"/>
+            <event from="50" to="65" res="icons/loudness/quantity_med.png, icons/feedback/thumb_positive.png"/>
+            <event from="65" to="999" res="icons/loudness/quantity_high.png, icons/feedback/thumb_positive.png"/>
         </class>
 	</feedback>
 </logue>

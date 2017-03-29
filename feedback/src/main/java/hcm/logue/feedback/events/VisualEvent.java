@@ -30,7 +30,6 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
-import java.io.InputStream;
 
 import hcm.logue.feedback.classes.Feedback;
 
@@ -58,17 +57,20 @@ public class VisualEvent extends Event
         {
             xml.require(XmlPullParser.START_TAG, null, "event");
 
-            int num = (xml.getAttributeValue(null, "icon2") != null) ? 2 : 1;
+            String res_str = xml.getAttributeValue(null, "res");
+            if(res_str == null)
+                throw new IOException("event resource not defined");
+
+            String[] icon_names = res_str.split("\\s*,\\s*");
+            if(icon_names.length > 2)
+                throw new IOException("unsupported amount of resources");
+
+            int num = icon_names.length;
             icons = new Drawable[num];
 
-            InputStream icon_is = context.getAssets().open(xml.getAttributeValue(null, "icon1"));
-            icons[0] = Drawable.createFromStream(icon_is, null);
-
-            String icon2_str = xml.getAttributeValue(null, "icon2");
-            if(icon2_str != null)
+            for(int i = 0; i< icon_names.length; i++)
             {
-                InputStream icon_is2 = context.getAssets().open(icon2_str);
-                icons[1] = Drawable.createFromStream(icon_is2, null);
+                icons[i] = Drawable.createFromStream(context.getAssets().open(icon_names[i]), null);
             }
 
             String bright_str = xml.getAttributeValue(null, "brightness");

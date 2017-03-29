@@ -28,11 +28,11 @@
 	<feedback>
         <class type="audio" level="0">
             <behaviour name="BodyEnergy" ssjevent="OverallActivation" ssjsender="SSJ"/>
-            <event from="3.0" to="999" name="sounds/blop.mp3" valence="Undesirable" intensity="0.3"/>
+            <event from="3.0" to="999" res="sounds/blop.mp3" valence="Undesirable" intensity="0.3"/>
         </class>
         <class type="audio" level="1">
             <behaviour name="BodyEnergy" ssjevent="OverallActivation" ssjsender="SSJ"/>
-            <event from="3.0" to="999" name="sounds/blop.mp3" valence="Undesirable" intensity="1.0"/>
+            <event from="3.0" to="999" res="sounds/blop.mp3" valence="Undesirable" intensity="1.0"/>
         </class>
 	</feedback>
 </logue>

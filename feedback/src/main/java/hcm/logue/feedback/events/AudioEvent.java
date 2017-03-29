@@ -61,10 +61,10 @@ public class AudioEvent extends Event
 
         try
         {
-            String name = xml.getAttributeValue(null, "name");
-            if(name != null)
+            String res = xml.getAttributeValue(null, "res");
+            if(res != null)
             {
-                _afd =  context.getAssets().openFd(name);
+                _afd =  context.getAssets().openFd(res);
             }
             else
                 throw new IOException("no sound defined");
