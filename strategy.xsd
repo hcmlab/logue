@@ -35,8 +35,8 @@
   <xs:element name="logue">
     <xs:complexType>
       <xs:sequence maxOccurs="unbounded">
-        <xs:element ref="options" />
-        <xs:element ref="feedback" minOccurs="1" />
+        <xs:element ref="options"  minOccurs="0"/>
+        <xs:element ref="feedback" minOccurs="1"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
