@@ -1,5 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<xs:schema  elementFormDefault="qualified" targetNamespace="http://www.hcm-lab.de" xmlns="http://www.hcm-lab.de" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<xs:schema  elementFormDefault="qualified"
+            targetNamespace="http://www.hcm-lab.de"
+            xmlns="http://www.hcm-lab.de"
+            xmlns:xs="http://www.w3.org/2001/XMLSchema"
+            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
+            vc:minVersion="1.1">
      
   <!--Type definitions-->
   <xs:simpleType name="valence">
@@ -26,12 +31,27 @@
   <xs:element name="logue">
     <xs:complexType>
       <xs:sequence minOccurs="1" maxOccurs="unbounded">
+        <xs:element ref="options" />
         <xs:element ref="feedback" />
       </xs:sequence>
     </xs:complexType>
-  </xs:element>       
+  </xs:element>
 
-  <!--Child elements-->
+  <!--Options-->
+  <xs:element name="options">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="option" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:attribute name="name" type="xs:string" use="required" />
+            <xs:string/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <!--Feedback-->
   <xs:element name="feedback">
     <xs:complexType>
       <xs:sequence>
@@ -64,6 +84,7 @@
             <xs:attribute name="layout_id" type="xs:string" use="optional" />
             <xs:attribute name="device" type="fb_device" use="optional" />
             <xs:attribute name="level" type="xs:short" use="optional" />
+            <xs:assert test="(@type = 'tactile') or (event/@res)"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
