@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema  elementFormDefault="qualified"
-            targetNamespace="http://www.hcm-lab.de"
-            xmlns="http://www.hcm-lab.de"
+            targetNamespace="hcm.logue"
+            xmlns="hcm.logue"
             xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:annotation>
     <xs:documentation xml:lang="EN">

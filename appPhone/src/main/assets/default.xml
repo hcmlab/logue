@@ -20,8 +20,8 @@
   ~ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
   -->
 
-<logue xmlns="http://www.hcm-lab.de" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.hcm-lab.de https://raw.githubusercontent.com/hcmlab/logue/master/strategy.xsd">
+<logue xmlns="hcm.logue" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="hcm.logue https://raw.githubusercontent.com/hcmlab/logue/master/strategy.xsd">
     <options>
         <option name="progressionTimeout">2</option>
         <option name="regressionTimeout">2</option>
