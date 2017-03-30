@@ -2,10 +2,14 @@
 <xs:schema  elementFormDefault="qualified"
             targetNamespace="http://www.hcm-lab.de"
             xmlns="http://www.hcm-lab.de"
-            xmlns:xs="http://www.w3.org/2001/XMLSchema"
-            xmlns:vc="http://www.w3.org/2007/XMLSchema-versioning"
-            vc:minVersion="1.1">
-     
+            xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:annotation>
+    <xs:documentation xml:lang="EN">
+      Strategy Definiton Scheme for the Logue feedback framework
+      http://hcm-lab.de/logue
+    </xs:documentation>
+  </xs:annotation>
+
   <!--Type definitions-->
   <xs:simpleType name="valence">
     <xs:restriction base="xs:NMTOKEN">
@@ -43,8 +47,11 @@
       <xs:sequence>
         <xs:element name="option" maxOccurs="unbounded">
           <xs:complexType>
-            <xs:attribute name="name" type="xs:string" use="required" />
-            <xs:string/>
+            <xs:simpleContent>
+              <xs:extension base="xs:string">
+                <xs:attribute name="name" type="xs:string" use="required" />
+              </xs:extension>
+            </xs:simpleContent>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
@@ -84,7 +91,6 @@
             <xs:attribute name="layout_id" type="xs:string" use="optional" />
             <xs:attribute name="device" type="fb_device" use="optional" />
             <xs:attribute name="level" type="xs:short" use="optional" />
-            <xs:assert test="(@type = 'tactile') or (event/@res)"/>
           </xs:complexType>
         </xs:element>
       </xs:sequence>
