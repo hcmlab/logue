@@ -51,5 +51,4 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support:support-v4:22.1.1'
     compile project(':ssj')
-    compile project(':feedback')
 }

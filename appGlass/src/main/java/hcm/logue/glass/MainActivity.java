@@ -24,28 +24,20 @@ package hcm.logue.glass;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.os.Environment;
 import android.util.Log;
-import android.util.Xml;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
-import org.xmlpull.v1.XmlPullParser;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import hcm.logue.feedback.Console;
-import hcm.logue.feedback.FeedbackManager;
-import hcm.logue.feedback.Options;
-import hcm.logue.glass.util.ConfigUtils;
-import hcm.ssj.audio.AudioProvider;
+import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.EventChannel;
+import hcm.ssj.core.Pipeline;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.feedback.FeedbackManager;
+import hcm.ssj.ioput.BluetoothConnection;
+import hcm.ssj.ioput.BluetoothEventReader;
+import hcm.ssj.ioput.BluetoothWriter;
 
 public class MainActivity extends Activity {
 
@@ -53,11 +45,7 @@ public class MainActivity extends Activity {
 
     private final String PHONE_MAC = "60:8F:5C:F2:D0:9D";
 
-    private Options conf;
-    private Console console;
-    private FeedbackManager man;
-
-    private TheFramework ssj;
+    private Pipeline ssj;
 
     @Override
     protected void onCreate(Bundle bundle) {
@@ -72,48 +60,41 @@ public class MainActivity extends Activity {
 
         setContentView(hcm.logue.glass.R.layout.activity);
 
-        //setup an SSJ pipeline to send sensor data to SSI
-        ssj = TheFramework.getFramework();
+        try
+        {
+            //setup an SSJ pipeline to send sensor data to SSI
+            ssj = Pipeline.getInstance();
 
-        Microphone mic = new Microphone();
-        ssj.addSensor(mic);
+            Microphone mic = new Microphone();
+            AudioChannel audio = new AudioChannel();
+            audio.options.sampleRate.set(8000);
+            audio.options.scale.set(false);
+            ssj.addSensor(mic, audio);
 
-        AudioProvider audio = new AudioProvider();
-        audio.options.sampleRate.set(16000);
-        audio.options.scale.set(false);
-        mic.addProvider(audio);
+			BluetoothWriter socket = new BluetoothWriter();
+			socket.options.connectionName.set("audio");
+			socket.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+			socket.options.serverName.set("Nexus 6P");
+			ssj.addConsumer(socket, audio, 0.2, 0);
 
-//        EventChannel channel = null;
-//        BluetoothWriter socket = new BluetoothWriter();
-//        socket.options.connectionName.set("audio");
-//        socket.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-//        socket.options.serverAddr.set(PHONE_MAC);
-//        ssj.addConsumer(socket, audio, 0.1, 0);
+			BluetoothEventReader eventReader = new BluetoothEventReader();
+			eventReader.options.connectionName.set("logue");
+			eventReader.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+			eventReader.options.serverName.set("Nexus 6P");
+			EventChannel channel = ssj.registerEventProvider(eventReader);
 
-//        BluetoothEventReader eventReader = new BluetoothEventReader();
-//        eventReader.options.connectionName.set("logue");
-//        eventReader.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-//        eventReader.options.serverAddr.set(PHONE_MAC);
-//        channel = ssj.registerEventProvider(eventReader);
-//        ssj.addComponent(eventReader);
-
-        //setup up the logic
-        conf = new Options();
-        console = new Console();
-        man = new FeedbackManager(this);
-//        man.registerEventChannel(channel);
-
-        //load config file
-        load(man, conf, "config.xml", false);
-
-        //initialize gui
-        console.setup(this, R.id.layout_table);
-        man.initClasses();
+			FeedbackManager feedback = new FeedbackManager(this);
+			feedback.options.strategy.set("config.xml");
+			feedback.options.fromAsset.set(true);
+			ssj.registerEventListener(feedback, channel);
+		}
+		catch (SSJException e)
+		{
+			Log.e("Logue", e.getMessage(), e);
+		}
 
         //start threads
-        if(man != null)
-            new Thread(man).start();
-        ssj.Start();
+        ssj.start();
     }
 
     @Override
@@ -133,12 +114,8 @@ public class MainActivity extends Activity {
 
         try {
             Log.i(name, "stopping SSJ");
-            ssj.Stop();
-            Log.i(name, "stopping console");
-            console.close();
-            Log.i(name, "stopping manager");
-            man.close();
-            Log.i(name, "manager stopped");
+            ssj.stop();
+			ssj.clear();
         }
         catch(Exception e)
         {
@@ -159,75 +136,4 @@ public class MainActivity extends Activity {
         super.onPause();
         finish();
     }
-
-    private void load(FeedbackManager man, Options conf, String filename, boolean lookOnDevice)
-    {
-        try
-        {
-            XmlPullParser parser;
-            InputStream in;
-
-            if(lookOnDevice)
-            {
-                //look for config file on sdcard first
-                File sdcard = Environment.getExternalStorageDirectory();
-                File folder = new File(sdcard.getPath() + "/logue");
-                if (!folder.exists() && !folder.isDirectory())
-                {
-                    if (!folder.mkdirs())
-                        Log.e("Activity", "Error creating folder");
-                }
-                File file = new File(folder, filename);
-
-                if (file.exists())
-                    in = new FileInputStream(file);
-                else
-                {
-                    //if not found, copy the one from assets
-                    InputStream from = getAssets().open(filename);
-                    OutputStream to = new FileOutputStream(file);
-
-                    ConfigUtils.copyFile(from, to);
-
-                    from.close();
-                    to.close();
-
-                    //than try loading it again
-                    file = new File(folder, filename);
-                    in = new FileInputStream(file);
-                }
-            }
-            else
-            {
-                in = getAssets().open(filename);
-            }
-
-            parser = Xml.newPullParser();
-            parser.setFeature(XmlPullParser.FEATURE_PROCESS_NAMESPACES, false);
-
-            parser.setInput(in, null);
-
-            while(parser.next() != XmlPullParser.END_DOCUMENT)
-            {
-                switch(parser.getEventType())
-                {
-                    case XmlPullParser.START_TAG:
-                        if(parser.getName().equalsIgnoreCase("options"))
-                        {
-                            conf.load(parser);
-                        }
-                        else if(parser.getName().equalsIgnoreCase("feedback"))
-                        {
-                            man.load(parser);
-                        }
-                }
-            }
-            in.close();
-        }
-        catch (Exception e)
-        {
-            Log.e(name, "exception when parsing config file", e);
-        }
-    }
-
 }

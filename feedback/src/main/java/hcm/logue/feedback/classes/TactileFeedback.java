@@ -79,9 +79,9 @@ public class TactileFeedback extends Feedback
             Hub hub = Hub.getInstance();
 
             long time = SystemClock.elapsedRealtime();
-            while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Cons.WAIT_SENSOR_CONNECT) {
+            while (hub.getConnectedDevices().isEmpty() && SystemClock.elapsedRealtime() - time < Cons.WAIT_BL_CONNECT) {
                 try {
-                    Thread.sleep(Cons.SLEEP_ON_IDLE);
+                    Thread.sleep(Cons.SLEEP_IN_LOOP);
                 } catch (InterruptedException e) {
                 }
             }

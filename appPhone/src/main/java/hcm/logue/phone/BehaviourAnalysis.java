@@ -31,39 +31,40 @@ import com.jjoe64.graphview.GraphView;
 
 import java.io.File;
 
-import hcm.logue.feedback.FeedbackManager;
 import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorProvider;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
 import hcm.ssj.androidSensor.SensorType;
+import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.AudioConvert;
-import hcm.ssj.audio.AudioProvider;
 import hcm.ssj.audio.Microphone;
 import hcm.ssj.audio.Pitch;
 import hcm.ssj.audio.SpeechRate;
 import hcm.ssj.body.OverallActivation;
 import hcm.ssj.core.Cons;
 import hcm.ssj.core.EventChannel;
+import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.Provider;
-import hcm.ssj.core.SensorProvider;
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.SSJException;
+import hcm.ssj.core.SensorChannel;
 import hcm.ssj.event.FloatSegmentEventSender;
 import hcm.ssj.event.FloatsEventSender;
 import hcm.ssj.event.ThresholdEventSender;
+import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.graphic.SignalPainter;
+import hcm.ssj.ioput.BluetoothChannel;
 import hcm.ssj.ioput.BluetoothConnection;
 import hcm.ssj.ioput.BluetoothEventWriter;
-import hcm.ssj.ioput.BluetoothProvider;
 import hcm.ssj.ioput.BluetoothReader;
-import hcm.ssj.msband.AccelerationProvider;
+import hcm.ssj.msband.AccelerationChannel;
 import hcm.ssj.msband.MSBand;
-import hcm.ssj.myo.DynAccelerationProvider;
+import hcm.ssj.myo.DynAccelerationChannel;
 import hcm.ssj.myo.Myo;
 import hcm.ssj.praat.Intensity;
 import hcm.ssj.signal.Envelope;
 import hcm.ssj.signal.MvgAvgVar;
 import hcm.ssj.test.EventLogger;
 
-public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceChangeListener
+public class BehaviourAnalysis implements Runnable, SharedPreferences.OnSharedPreferenceChangeListener
 {
     String _name = "LoguePipeline";
 
@@ -96,8 +97,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
     private AccSource _accSource = AccSource.None;
 
     private boolean _terminate = false;
-    private TheFramework _ssj;
-    double _frameSize = 0.1;
+    private Pipeline _ssj;
     ThresholdEventSender _vad;
     MvgAvgVar _activityf;
 
@@ -105,12 +105,11 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
     private GraphView _graphs[] = null;
     SharedPreferences _pref;
 
-    FeedbackManager _feedbackManager = null;
     protected Status _status = Status.Idle;
 
     private String _fbFilePath = Environment.getExternalStorageDirectory() + File.separator + "logue" + File.separator + "default.xml";
 
-    public Pipeline(MainActivity a, GraphView[] graphs)
+    public BehaviourAnalysis(MainActivity a, GraphView[] graphs)
     {
         _act = a;
         _graphs = graphs;
@@ -125,10 +124,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
     }
 
     public void release()
-    {
-        Log.i(_name, "stopping feedback manager");
-        _feedbackManager.close();
-    }
+    {}
 
     public void create()
     {
@@ -137,17 +133,19 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         try
         {
             //setup an SSJ pipeline to send sensor data to SSI
-            _ssj = TheFramework.getFramework();
+            _ssj = Pipeline.getInstance();
             _ssj.options.bufferSize.set(10.0f);
             _ssj.options.countdown.set(7);
             _pref.edit().putInt("COUNTDOWN", _ssj.options.countdown.get()).commit(); //initialize value in the GUI
 
             BluetoothEventWriter glassEvent = null;
+            FeedbackManager feedbackManager = null;
 
             if (_fbFilePath != null && _fbFilePath.length() > 0)
             {
-                _feedbackManager = new FeedbackManager(_act);
-                _feedbackManager.load(_fbFilePath, false);
+                feedbackManager = new FeedbackManager(_act);
+                feedbackManager.options.strategy.set(_fbFilePath);
+                feedbackManager.options.fromAsset.set(false);
             }
 
             if(_fbGlass)
@@ -160,12 +158,12 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
 
             if (_audioSource != AudioSource.None)
             {
-                buildAudioPipe(glassEvent);
+                buildAudioPipe(feedbackManager, glassEvent);
             }
 
             if(_accSource != AccSource.None)
             {
-                buildAccPipe(glassEvent);
+                buildAccPipe(feedbackManager, glassEvent);
             }
         }
         catch(Exception e)
@@ -176,13 +174,11 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
 
         _status = Status.Initialized;
         Log.i(_name, "pipeline ready");
-
-        if(_feedbackManager != null)
-            new Thread(_feedbackManager).start();
     }
 
-    private void buildAudioPipe(BluetoothEventWriter glassEvent)
+    private void buildAudioPipe(FeedbackManager feedbackManager, BluetoothEventWriter glassEvent) throws SSJException
     {
+        double frameSize = 0.2;
         SignalPainter paint = null;
         Provider audio = null;
 
@@ -191,28 +187,26 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
             BluetoothReader bl = new BluetoothReader();
             bl.options.connectionName.set("audio");
             bl.options.connectionType.set(BluetoothConnection.Type.SERVER);
-            _ssj.addSensor(bl);
-
-            BluetoothProvider audio_raw = new BluetoothProvider();
+            BluetoothChannel audio_raw = new BluetoothChannel();
             audio_raw.options.outputClass.set(new String[]{"Audio"});
             audio_raw.options.bytes.set(2);
             audio_raw.options.dim.set(1);
             audio_raw.options.type.set(Cons.Type.SHORT);
-            audio_raw.options.sr.set(16000.);
-            bl.addProvider(audio_raw);
+            audio_raw.options.sr.set(8000.);
+            audio_raw.options.num.set(1600);
+            _ssj.addSensor(bl, audio_raw);
 
             audio = new AudioConvert();
-            _ssj.addTransformer((AudioConvert) audio, audio_raw, _frameSize, 0);
+            _ssj.addTransformer((AudioConvert) audio, audio_raw, frameSize, 0);
         }
         else if (_audioSource == AudioSource.Phone)
         {
             Microphone mic = new Microphone();
-            _ssj.addSensor(mic);
 
-            audio = new AudioProvider();
-            ((AudioProvider) audio).options.sampleRate.set(16000);
-            ((AudioProvider) audio).options.scale.set(true);
-            mic.addProvider((AudioProvider) audio);
+            audio = new AudioChannel();
+            ((AudioChannel) audio).options.sampleRate.set(16000);
+            ((AudioChannel) audio).options.scale.set(true);
+            _ssj.addSensor(mic, (AudioChannel) audio);
         }
         else throw new UnsupportedOperationException("unsupported audio source");
 
@@ -224,16 +218,16 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         pitch.options.computePitch.set(false);
         pitch.options.computePitchedState.set(false);
         pitch.options.computeVoicedProb.set(true);
-        _ssj.addTransformer(pitch, audio, _frameSize, 0);
+        _ssj.addTransformer(pitch, audio, frameSize, 0);
 
         Envelope pitch_env = new Envelope();
         pitch_env.options.attackSlope.set(0.3f); //in units, 1.0 is max
         pitch_env.options.releaseSlope.set(0.05f);
-        _ssj.addTransformer(pitch_env, pitch, _frameSize * 10, 0);
+        _ssj.addTransformer(pitch_env, pitch, frameSize * 10, 0);
 
         Intensity intensity = new Intensity();
         intensity.options.subtractMeanPressure.set(false);
-        _ssj.addTransformer(intensity, audio, _frameSize * 10, 0);
+        _ssj.addTransformer(intensity, audio, frameSize * 10, 0);
 
         _vad = new ThresholdEventSender();
         _vad.options.sender.set("SSJ");
@@ -245,7 +239,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         _vad.options.hangin.set((int) (intensity.getOutputStream().sr * 0.2)); //0.2s
         _vad.options.hangout.set((int) (intensity.getOutputStream().sr * 0.5)); //0.5s
         Provider[] vad_in = {intensity};
-        _ssj.addConsumer(_vad, vad_in, _frameSize * 10, 0);
+        _ssj.addConsumer(_vad, vad_in, frameSize * 10, 0);
         EventChannel vad_channel = _ssj.registerEventProvider(_vad);
 
         SpeechRate sr = new SpeechRate();
@@ -272,10 +266,10 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
             _ssj.registerEventListener(glassEvent, intensity_channel);
         }
 
-        if (_feedbackManager != null)
+        if (feedbackManager != null)
         {
-            _feedbackManager.registerEventChannel(sr_channel);
-            _feedbackManager.registerEventChannel(intensity_channel);
+            _ssj.registerEventListener(feedbackManager, sr_channel);
+            _ssj.registerEventListener(feedbackManager, intensity_channel);
         }
 
         /*
@@ -292,7 +286,6 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         paint = new SignalPainter();
         paint.options.graphView.set(_graphs[0]);
         paint.options.renderMax.set(false);
-        paint.options.colors.set(new int[]{0xffff9900, 0xff009999, 0xff990000, 0xffff00ff, 0xff000000, 0xff339900});
         paint.options.manualBounds.set(true);
         paint.options.min.set(0.);
         paint.options.max.set(1.);
@@ -302,47 +295,45 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         _ssj.addConsumer(paint, intensity, 1.0, 0);
     }
 
-    private void buildAccPipe(BluetoothEventWriter glassEvents)
+    private void buildAccPipe(FeedbackManager feedbackManager, BluetoothEventWriter glassEvents) throws SSJException
     {
+        float frameSize = 0.1f;
         SignalPainter paint = null;
-        SensorProvider acc = null;
+        SensorChannel acc = null;
 
         if (_accSource == AccSource.Myo)
         {
             Myo myo = new Myo();
-            _ssj.addSensor(myo);
-            acc = new DynAccelerationProvider();
-            myo.addProvider(acc);
+            acc = new DynAccelerationChannel();
+            _ssj.addSensor(myo, acc);
         }
         else if (_accSource == AccSource.Phone)
         {
             AndroidSensor androidSensor = new AndroidSensor();
             androidSensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
-            _ssj.addSensor(androidSensor);
-            acc = new AndroidSensorProvider();
-            androidSensor.addProvider(acc);
+            acc = new AndroidSensorChannel();
+            _ssj.addSensor(androidSensor, acc);
         }
         else if (_accSource == AccSource.MsBand)
         {
             MSBand band = new MSBand();
-            _ssj.addSensor(band);
-            acc = new AccelerationProvider();
-            band.addProvider(acc);
+            acc = new AccelerationChannel();
+            _ssj.addSensor(band, acc);
         }
         else throw new UnsupportedOperationException("unsupported acc source");
 
         OverallActivation activity = new OverallActivation();
-        _ssj.addTransformer(activity, acc, _frameSize, 5.0);
+        _ssj.addTransformer(activity, acc, frameSize, 5.0);
 
         _activityf = new MvgAvgVar();
         _activityf.options.window.set(10.);
         _pref.edit().putInt("MVGAVG_WINDOW", _activityf.options.window.get().intValue()).commit(); //initialize value in the GUI
-        _ssj.addTransformer(_activityf, activity, _frameSize, 0);
+        _ssj.addTransformer(_activityf, activity, frameSize, 0);
 
         FloatsEventSender evactivity = new FloatsEventSender();
         evactivity.options.sender.set("SSJ");
         evactivity.options.event.set("OverallActivation");
-        _ssj.addConsumer(evactivity, _activityf, _frameSize * 5, 0);
+        _ssj.addConsumer(evactivity, _activityf, frameSize * 5, 0);
         EventChannel activity_channel = _ssj.registerEventProvider(evactivity);
 
         EventLogger log = new EventLogger();
@@ -352,8 +343,8 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         if (_fbGlass && glassEvents != null) {
             _ssj.registerEventListener(glassEvents, activity_channel);
         }
-        if (_feedbackManager != null) {
-            _feedbackManager.registerEventChannel(activity_channel);
+        if (feedbackManager != null) {
+            _ssj.registerEventListener(feedbackManager, activity_channel);
         }
 
         paint = new SignalPainter();
@@ -366,7 +357,6 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
 
         paint = new SignalPainter();
         paint.options.graphView.set(_graphs[1]);
-        paint.options.colors.set(new int[]{0xff990000, 0xffff00ff, 0xff000000, 0xff339900});
         paint.options.secondScaleDim.set(0);
         paint.options.secondScaleMin.set(0.);
         paint.options.secondScaleMax.set(3.);
@@ -383,7 +373,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
 
         try
         {
-            _ssj.Start();
+            _ssj.start();
         }
         catch(Exception e)
         {
@@ -409,7 +399,7 @@ public class Pipeline implements Runnable, SharedPreferences.OnSharedPreferenceC
         Log.i(_name, "stopping SSJ");
         try
         {
-            _ssj.Stop();
+            _ssj.stop();
         }
         catch(Exception e)
         {

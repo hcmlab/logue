@@ -43,14 +43,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-import hcm.ssj.core.TheFramework;
+import hcm.ssj.core.Pipeline;
 
 
 public class MainActivity extends AppCompatActivity
 {
     String _name = "Logue_Worker_Activity";
 
-    private Pipeline _pipe = null;
+    private BehaviourAnalysis _pipe = null;
     private String _header;
 
     GraphView _graph[];
@@ -71,7 +71,7 @@ public class MainActivity extends AppCompatActivity
             Log.e(_name, "cannot retrieve version number");
         }
 
-        _header = "LogueWorker v" + version + " (SSJ v" + TheFramework.getFramework().getVersion() + ")";
+        _header = "LogueWorker v" + version + " (SSJ v" + Pipeline.getInstance().getVersion() + ")";
 
         TextView text = (TextView) findViewById(R.id.txt_header);
         text.setText(_header);
@@ -80,12 +80,9 @@ public class MainActivity extends AppCompatActivity
         _graph[0] = (GraphView) findViewById(R.id.graph);
         _graph[1] = (GraphView) findViewById(R.id.graph2);
 
-        _graph[0].removeAllSeries();
-        _graph[1].removeAllSeries();
-
         checkStrategyFile("default.xml");
 
-        _pipe = new Pipeline(this, _graph);
+        _pipe = new BehaviourAnalysis(this, _graph);
     }
 
     @Override
@@ -119,7 +116,7 @@ public class MainActivity extends AppCompatActivity
         Button btn = (Button) findViewById(R.id.btn_start);
         TextView text = (TextView) findViewById(R.id.txt_status);
 
-        if(_pipe.getStatus() == Pipeline.Status.Idle)
+        if(_pipe.getStatus() == BehaviourAnalysis.Status.Idle)
         {
             text.setText("> pipeline ready");
             btn.setText(R.string.start);
@@ -130,6 +127,11 @@ public class MainActivity extends AppCompatActivity
         {
             btn.setAlpha(0.5f);
             btn.setEnabled(false);
+
+            _graph[0].removeAllSeries();
+            _graph[0].clearSecondScale();
+            _graph[1].removeAllSeries();
+            _graph[1].clearSecondScale();
 
             text.setText("> starting");
             Thread t = new Thread(_pipe);
@@ -173,7 +175,7 @@ public class MainActivity extends AppCompatActivity
 
     public void onClosePressed(View v)
     {
-        if(_pipe != null && _pipe.getStatus() == Pipeline.Status.Running)
+        if(_pipe != null && _pipe.getStatus() == BehaviourAnalysis.Status.Running)
         {
             _pipe.terminate();
         }
