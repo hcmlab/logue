@@ -24,75 +24,75 @@
     <strategy>
         <!-- VISUAL -->
         <feedback type="visual" layout="layout_table">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="0" to="30"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="0" to="30"/>
             <action res="100percent.png"/>
         </feedback>
         <feedback type="visual" layout="layout_table">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
             <action res="75percent.png"/>
         </feedback>
         <feedback type="visual" layout="layout_table">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
             <action res="50percent.png"/>
         </feedback>
         <feedback type="visual" layout="layout_table">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
             <action res="25percent.png"/>
         </feedback>
         <feedback type="visual" layout="layout_table">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
             <action res="10percent.png"/>
         </feedback>
         <feedback type="visual" layout="layout_table">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120" to="999"/>
             <action res="timeover.png"/>
         </feedback>
 
         <!-- AUDIO -->
         <!-- events are only executed once -->
         <feedback type="audio">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
-            <action res="75percent.mp3" lockSelf="-1"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
+            <action res="75percent.mp3" lockSelf="60000"/>
         </feedback>
         <feedback type="audio">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
-            <action res="50percent.mp3" lockSelf="-1"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
+            <action res="50percent.mp3" lockSelf="60000"/>
         </feedback>
         <feedback type="audio">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
-            <action res="25percent.mp3" lockSelf="-1"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
+            <action res="25percent.mp3" lockSelf="60000"/>
         </feedback>
         <feedback type="audio">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
-            <action res="10percent.mp3" lockSelf="-1"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
+            <action res="10percent.mp3" lockSelf="60000"/>
         </feedback>
         <!-- event is executed once every second while the user speaks -->
         <feedback type="audio">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120" to="999"/>
             <action res="timeover.mp3" lockSelf="1000"/>
         </feedback>
 
         <!-- TACTILE -->
         <!-- events are only executed once -->
         <feedback type="tactile">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
-            <action intensity="150" duration="500" lockSelf="-1"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="30" to="60"/>
+            <action intensity="150" duration="500" lockSelf="60000"/>
         </feedback>
         <feedback type="tactile">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
-            <action intensity="150,150" duration="500,500" lockSelf="-1"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="60" to="90"/>
+            <action intensity="150,150" duration="500,500" lockSelf="60000"/>
         </feedback>
         <feedback type="tactile">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
-            <action intensity="150,150,150" duration="500,500,500" lockSelf="-1"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="90" to="108"/>
+            <action intensity="150,150,150" duration="500,500,500" lockSelf="60000"/>
         </feedback>
         <feedback type="tactile">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
-            <action intensity="150" duration="500" lockSelf="-1"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="108" to="120"/>
+            <action intensity="150" duration="500" lockSelf="60000"/>
         </feedback>
         <!-- event is executed once every second while the user speaks -->
         <feedback type="tactile">
-            <condition name="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120"/>
+            <condition type="SpeechDuration" event="VoiceActivity" sender="SSJ" sum="true" from="120" to="999"/>
             <action intensity="150" duration="2000" lockSelf="1000"/>
         </feedback>
     </strategy>
