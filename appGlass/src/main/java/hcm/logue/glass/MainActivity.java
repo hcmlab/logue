@@ -29,18 +29,14 @@ import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
 
-import hcm.ssj.androidSensor.AndroidSensor;
-import hcm.ssj.androidSensor.AndroidSensorChannel;
-import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
-import hcm.ssj.body.OverallActivation;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.SSJException;
-import hcm.ssj.event.FloatsEventSender;
-import hcm.ssj.feedback.FeedbackManager;
-import hcm.ssj.signal.MvgAvgVar;
+import hcm.ssj.ioput.BluetoothConnection;
+import hcm.ssj.ioput.BluetoothEventReader;
+import hcm.ssj.ioput.BluetoothWriter;
 
 public class MainActivity extends Activity {
 
@@ -75,40 +71,42 @@ public class MainActivity extends Activity {
             audio.options.scale.set(false);
             ssj.addSensor(mic, audio);
 
-//			BluetoothWriter socket = new BluetoothWriter();
-//			socket.options.connectionName.set("audio");
-//			socket.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-//			socket.options.serverName.set("Nexus 6P");
-//			ssj.addConsumer(socket, audio, 0.2, 0);
+			BluetoothWriter socket = new BluetoothWriter();
+			socket.options.connectionName.set("audio");
+			socket.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+			socket.options.serverName.set("Nexus 6P");
+			ssj.addConsumer(socket, audio, 0.2, 0);
+
+			BluetoothEventReader eventReader = new BluetoothEventReader();
+			eventReader.options.connectionName.set("logue");
+			eventReader.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+			eventReader.options.serverName.set("Nexus 6P");
+			EventChannel channel = ssj.registerEventProvider(eventReader);
+
+//            AndroidSensor androidSensor = new AndroidSensor();
+//            androidSensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
+//            AndroidSensorChannel acc = new AndroidSensorChannel();
+//            ssj.addSensor(androidSensor, acc);
 //
-//			BluetoothEventReader eventReader = new BluetoothEventReader();
-//			eventReader.options.connectionName.set("logue");
-//			eventReader.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-//			eventReader.options.serverName.set("Nexus 6P");
-//			EventChannel channel = ssj.registerEventProvider(eventReader);
-
-            AndroidSensor androidSensor = new AndroidSensor();
-            androidSensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
-            AndroidSensorChannel acc = new AndroidSensorChannel();
-            ssj.addSensor(androidSensor, acc);
-
-            OverallActivation activity = new OverallActivation();
-            ssj.addTransformer(activity, acc, 0.1, 5.0);
-
-            MvgAvgVar _activityf = new MvgAvgVar();
-            _activityf.options.window.set(10.);
-            ssj.addTransformer(_activityf, activity, 0.1, 0);
-
-            FloatsEventSender evactivity = new FloatsEventSender();
-            evactivity.options.sender.set("SSJ");
-            evactivity.options.event.set("OverallActivation");
-            ssj.addConsumer(evactivity, _activityf, 0.1 * 5, 0);
-            EventChannel activity_channel = ssj.registerEventProvider(evactivity);
-
-			FeedbackManager feedback = new FeedbackManager(this);
-			feedback.options.strategy.set("publicSpeaking.xml");
-			feedback.options.fromAsset.set(true);
-			ssj.registerEventListener(feedback, activity_channel);
+//            OverallActivation activity = new OverallActivation();
+//            ssj.addTransformer(activity, acc, 0.1, 5.0);
+//
+//            MvgAvgVar _activityf = new MvgAvgVar();
+//            _activityf.options.window.set(10.);
+//            ssj.addTransformer(_activityf, activity, 0.1, 0);
+//
+//            FloatsEventSender evactivity = new FloatsEventSender();
+//            evactivity.options.sender.set("SSJ");
+//            evactivity.options.event.set("OverallActivation");
+//            ssj.addConsumer(evactivity, _activityf, 0.1 * 5, 0);
+//            EventChannel activity_channel = ssj.registerEventProvider(evactivity);
+//
+//			FeedbackManager feedback = new FeedbackManager(this);
+//			feedback.options.strategy.set("adapt.xml");
+//			feedback.options.fromAsset.set(true);
+//            feedback.options.progression.set(10f);
+//            feedback.options.regression.set(10f);
+//			ssj.registerEventListener(feedback, activity_channel);
 		}
 		catch (SSJException e)
 		{
