@@ -31,30 +31,4 @@
     android:stretchColumns="1"
     android:id="@+id/layout_table">
 
-    <!--<TableRow android:layout_height="match_parent" android:layout_weight="1">-->
-        <!--<ImageView-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:background="#FF0000"-->
-            <!--android:src="@drawable/ic_glass_logo"/>-->
-        <!--<ImageView-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:background="#00FF00"-->
-            <!--android:src="@drawable/ic_glass_logo"/>-->
-    <!--</TableRow>-->
-
-    <!--<TableRow android:layout_height="match_parent" android:layout_weight="1">-->
-        <!--<ImageView-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:background="#0000FF"-->
-            <!--android:src="@drawable/ic_glass_logo"/>-->
-        <!--<ImageView-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:background="#F0FF0F"-->
-            <!--android:src="@drawable/ic_glass_logo"/>-->
-    <!--</TableRow>-->
-
 </TableLayout>

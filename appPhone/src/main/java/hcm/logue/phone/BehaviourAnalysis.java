@@ -146,6 +146,8 @@ public class BehaviourAnalysis implements Runnable, SharedPreferences.OnSharedPr
                 feedbackManager = new FeedbackManager(_act);
                 feedbackManager.options.strategy.set(_fbFilePath);
                 feedbackManager.options.fromAsset.set(false);
+                feedbackManager.options.progression.set(10f);
+                feedbackManager.options.regression.set(10f);
             }
 
             if(_fbGlass)

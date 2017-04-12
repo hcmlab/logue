@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <xs:schema  elementFormDefault="qualified"
-            targetNamespace="hcm.logue"
-            xmlns="hcm.logue"
+            targetNamespace="hcm.ssj"
+            xmlns="hcm.ssj"
             xmlns:xs="http://www.w3.org/2001/XMLSchema">
   <xs:annotation>
     <xs:documentation xml:lang="EN">
@@ -32,65 +32,51 @@
   </xs:simpleType>
   
   <!--The base element-->
-  <xs:element name="logue">
+  <xs:element name="ssj">
     <xs:complexType>
       <xs:sequence maxOccurs="unbounded">
-        <xs:element ref="options"  minOccurs="0"/>
-        <xs:element ref="feedback" minOccurs="1"/>
-      </xs:sequence>
-    </xs:complexType>
-  </xs:element>
-
-  <!--Options-->
-  <xs:element name="options">
-    <xs:complexType>
-      <xs:sequence>
-        <xs:element name="option" maxOccurs="unbounded">
-          <xs:complexType>
-            <xs:simpleContent>
-              <xs:extension base="xs:string">
-                <xs:attribute name="name" type="xs:string" use="required" />
-              </xs:extension>
-            </xs:simpleContent>
-          </xs:complexType>
-        </xs:element>
+        <xs:element ref="strategy" minOccurs="1" maxOccurs="1"/>
       </xs:sequence>
     </xs:complexType>
   </xs:element>
 
   <!--Feedback-->
-  <xs:element name="feedback">
+  <xs:element name="strategy">
     <xs:complexType>
       <xs:sequence>
-        <xs:element maxOccurs="unbounded" name="class">
+        <xs:element maxOccurs="unbounded" name="feedback">
           <xs:complexType>
             <xs:sequence>
-              <xs:element name="behaviour" maxOccurs="1" minOccurs="1">
+              <xs:element name="condition" maxOccurs="1" minOccurs="1">
                 <xs:complexType>
                   <xs:attribute name="name" type="xs:string" use="required" />
-                  <xs:attribute name="ssjevent" type="xs:string" use="required" />
-                  <xs:attribute name="ssjsender" type="xs:string" use="required" />
+                  <xs:attribute name="event" type="xs:string" use="required" />
+                  <xs:attribute name="sender" type="xs:string" use="required" />
                   <xs:attribute name="history" type="xs:unsignedByte" use="optional" />
                   <xs:attribute name="sum" type="xs:boolean" use="optional" />
-                </xs:complexType>
-              </xs:element>
-              <xs:element maxOccurs="unbounded" name="event">
-                <xs:complexType>
                   <xs:attribute name="from" type="xs:decimal" use="required" />
                   <xs:attribute name="to" type="xs:decimal" use="optional" />
+                </xs:complexType>
+              </xs:element>
+              <xs:element name="action" maxOccurs="1" minOccurs="1">
+                <xs:complexType>
                   <xs:attribute name="res" type="xs:string" use="optional" />
-                  <xs:attribute name="lock" type="xs:short" use="optional" />
-                  <xs:attribute name="lockSelf" type="xs:short" use="optional" />
+                  <xs:attribute name="lock" type="xs:integer" use="optional" />
+                  <xs:attribute name="lockSelf" type="xs:integer" use="optional" />
                   <xs:attribute name="intensity" type="xs:string" use="optional" />
                   <xs:attribute name="duration" type="xs:string" use="optional" />
-                  <xs:attribute name="valence" type="valence" use="optional"/>
+                  <xs:attribute name="brightness" type="xs:float" use="optional" />
                 </xs:complexType>
               </xs:element>
             </xs:sequence>
             <xs:attribute name="type" type="fb_type" use="required" />
-            <xs:attribute name="layout_id" type="xs:string" use="optional" />
-            <xs:attribute name="device" type="fb_device" use="optional" />
+            <xs:attribute name="valence" type="valence" use="optional"/>
             <xs:attribute name="level" type="xs:short" use="optional" />
+            <xs:attribute name="layout" type="xs:string" use="optional" />
+            <xs:attribute name="position" type="xs:short" use="optional" />
+            <xs:attribute name="fade" type="xs:integer" use="optional" />
+            <xs:attribute name="def_brightness" type="xs:float" use="optional" />
+            <xs:attribute name="device" type="fb_device" use="optional" />
           </xs:complexType>
         </xs:element>
       </xs:sequence>

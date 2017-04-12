@@ -33,7 +33,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import hcm.logue.feedback.Console;
+import hcm.ssj.core.Log;
 
 /**
  * Created by Johnny on 02.12.2014.
@@ -50,7 +50,7 @@ public class SSIConnector extends Thread {
     public SSIConnector(String ip, int port)
     {
         if (ip == null) ip = getIPAddress(true);
-        Console.print("setting up socket on " + ip + "@" + port);
+        Log.i("setting up socket on " + ip + "@" + port);
 
         try {
             _socket = new DatagramSocket(null);
@@ -60,17 +60,17 @@ public class SSIConnector extends Thread {
             _socket.bind(saddr);
         } catch (Exception e) {
             e.printStackTrace();
-            Console.print("ERROR: cannot create socket");
+            Log.i("ERROR: cannot create socket");
             return;
         }
 
         if(_socket == null || !_socket.isBound())
         {
-            Console.print("ERROR: cannot bind socket");
+            Log.i("ERROR: cannot bind socket");
             return;
         }
 
-        Console.print("socket ready ("+ip + "@" + port+")");
+        Log.i("socket ready ("+ip + "@" + port+")");
         _connected = true;
 
         start();
@@ -100,7 +100,7 @@ public class SSIConnector extends Thread {
             }
         }
 
-        Console.print("connection terminated");
+        Log.i("connection terminated");
         _connected = false;
 
         try {
