@@ -48,7 +48,7 @@
     <string name="pref_FbGlassSummary">Deliver feedback using Google Glass (audio/visual)</string>
 
     <string name="pref_FbFileTitle">Strategy File</string>
-    <string name="pref_FbFileSummary">Choose the location of the strategy file</string>
+    <string name="pref_FbFileSummary">Choose the strategy file (must be located in [SDCARD]/logue/)</string>
 
     <string name="init">Init</string>
     <string name="pref_useAudioTitle">Audio</string>

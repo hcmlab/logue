@@ -28,7 +28,6 @@
     android:background="#000000"
     tools:context=".MainActivity"
     android:keepScreenOn="true"
-    android:stretchColumns="1"
     android:id="@+id/layout_table">
 
 </TableLayout>

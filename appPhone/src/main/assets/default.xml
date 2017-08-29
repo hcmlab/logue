@@ -21,20 +21,20 @@
   -->
 <strategy>
     <feedback type="audio" level="0">
-        <condition name="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3"/>
-        <action res="sounds/blop.mp3" valence="Desirable" intensity="0.0"/>
+        <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3"/>
+        <action res="assets:sounds/blop.mp3" valence="Desirable" intensity="0.0"/>
     </feedback>
     <feedback type="audio" level="0">
-        <condition name="BodyEnergy" event="OverallActivation" sender="SSJ" from="3.0" to="999"/>
-        <action res="sounds/blop.mp3" valence="Undesirable" intensity="0.3" lockSelf="2000"/>
+        <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="3.0" to="999"/>
+        <action res="assets:sounds/blop.mp3" valence="Undesirable" intensity="0.3" lockSelf="2000"/>
     </feedback>
     <feedback type="audio" level="1">
-        <condition name="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3"/>
-        <action res="sounds/blop.mp3" valence="Desirable" intensity="0.0"/>
+        <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="3"/>
+        <action res="assets:sounds/blop.mp3" valence="Desirable" intensity="0.0"/>
     </feedback>
     <feedback type="audio" level="1">
-        <condition name="BodyEnergy" event="OverallActivation" sender="SSJ" from="3.0" to="999"/>
-        <action res="sounds/blop.mp3" valence="Undesirable" intensity="1.0"/>
+        <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="3.0" to="999"/>
+        <action res="assets:sounds/blop.mp3" valence="Undesirable" intensity="1.0"/>
     </feedback>
 </strategy>
 

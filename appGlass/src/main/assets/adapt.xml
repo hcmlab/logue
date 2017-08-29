@@ -19,37 +19,41 @@
   ~ with this library; if not, write to the Free Software Foundation, Inc.,
   ~ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
   -->
+
+<!--
+    Example adaptive strategy
+-->
 <ssj xmlns="hcm.ssj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="hcm.ssj http://hcmlab.github.io/ssj/res/feedback.xsd">
     <strategy>
         <!-- level 0 -->
-        <feedback type="visual" layout="layout_table" level="0" valence="Desirable">
+        <feedback type="visual" level="0" valence="Desirable">
             <condition event="OverallActivation" sender="ssj" from="0" to="3"/>
             <action res="icons/feedback/thumb_positive.png"/>
         </feedback>
 
-        <feedback type="visual" layout="layout_table" level="0" valence="Undesirable">
+        <feedback type="visual" level="0" valence="Undesirable">
             <condition event="OverallActivation" sender="ssj" from="3" to="999"/>
             <action res="icons/feedback/thumb_negative.png"/>
         </feedback>
 
         <!-- level 1 -->
-        <feedback type="visual" layout="layout_table" level="1" valence="Desirable">
+        <feedback type="visual" level="1" valence="Desirable">
             <condition event="OverallActivation" sender="ssj" from="0" to="3"/>
             <action res="icons/feedback/thumb_positive.png"/>
         </feedback>
         <feedback type="audio" level="1" valence="Desirable">
             <condition event="OverallActivation" sender="ssj" from="0" to="3"/>
-            <action res="sounds/blop.mp3" intensity="0.2"/>
+            <action res="assets:sounds/blop.mp3" intensity="0.2"/>
         </feedback>
 
-        <feedback type="visual" layout="layout_table" level="1" valence="Undesirable">
+        <feedback type="visual" level="1" valence="Undesirable">
             <condition event="OverallActivation" sender="ssj" from="3" to="999"/>
             <action res="icons/feedback/thumb_negative.png"/>
         </feedback>
         <feedback type="audio" level="1" valence="Undesirable">
             <condition event="OverallActivation" sender="ssj" from="3" to="999"/>
-            <action res="sounds/blop.mp3" intensity="1"/>
+            <action res="assets:sounds/blop.mp3" intensity="1"/>
         </feedback>
     </strategy>
 </ssj>

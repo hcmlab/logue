@@ -19,44 +19,48 @@
   ~ with this library; if not, write to the Free Software Foundation, Inc.,
   ~ 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
   -->
+
+<!--
+    Example strategy for public speaking augmentation
+-->
 <ssj xmlns="hcm.ssj" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
      xsi:schemaLocation="hcm.ssj http://hcmlab.github.io/ssj/res/feedback.xsd">
     <strategy>
-        <feedback type="visual" layout="layout_table" position="0">
+        <feedback type="visual" position="0">
             <condition type="SpeechRate" event="SpeechRate" sender="SSJ" history="5" from="0.0" to="2.0"/>
             <action res="icons/speechrate/orientation_low.png, icons/feedback/thumb_negative.png"/>
         </feedback>
-        <feedback type="visual" layout="layout_table" position="0">
+        <feedback type="visual" position="0">
             <condition type="SpeechRate" event="SpeechRate" sender="SSJ" history="5" from="2.0" to="3.6"/>
             <action res="icons/speechrate/orientation_med.png, icons/feedback/thumb_positive.png"/>
         </feedback>
-        <feedback type="visual" layout="layout_table" position="0">
+        <feedback type="visual" position="0">
             <condition type="SpeechRate" event="SpeechRate" sender="SSJ" history="5" from="3.6" to="999"/>
             <action res="icons/speechrate/orientation_high.png, icons/feedback/thumb_negative.png"/>
         </feedback>
 
-        <feedback type="visual" layout="layout_table" position="1">
+        <feedback type="visual" position="1">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.0" to="0.8"/>
             <action  res="icons/energy/area_low.png, icons/feedback/thumb_negative.png"/>
         </feedback>
-        <feedback type="visual" layout="layout_table" position="1">
+        <feedback type="visual" position="1">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="0.8" to="2.0"/>
             <action  res="icons/energy/area_med.png, icons/feedback/thumb_positive.png"/>
         </feedback>
-        <feedback type="visual" layout="layout_table" position="1">
+        <feedback type="visual" position="1">
             <condition type="BodyEnergy" event="OverallActivation" sender="SSJ" from="2.0" to="999"/>
             <action  res="icons/energy/area_high.png, icons/feedback/thumb_negative.png"/>
         </feedback>
 
-        <feedback type="visual" layout="layout_table" position="2">
+        <feedback type="visual" position="2">
             <condition type="Loudness" event="Intensity" sender="SSJ" history="3" from="0" to="50"/>
             <action res="icons/loudness/quantity_low.png, icons/feedback/thumb_negative.png"/>
         </feedback>
-        <feedback type="visual" layout="layout_table" position="2">
+        <feedback type="visual" position="2">
             <condition type="Loudness" event="Intensity" sender="SSJ" history="3" from="50" to="65"/>
             <action res="icons/loudness/quantity_med.png, icons/feedback/thumb_positive.png"/>
         </feedback>
-        <feedback type="visual" layout="layout_table" position="2">
+        <feedback type="visual" position="2">
             <condition type="Loudness" event="Intensity" sender="SSJ" history="3" from="65" to="999"/>
             <action res="icons/loudness/quantity_high.png, icons/feedback/thumb_positive.png"/>
         </feedback>

@@ -28,25 +28,34 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.TableLayout;
 
+import hcm.ssj.androidSensor.AndroidSensor;
+import hcm.ssj.androidSensor.AndroidSensorChannel;
+import hcm.ssj.androidSensor.SensorType;
 import hcm.ssj.audio.AudioChannel;
 import hcm.ssj.audio.Microphone;
+import hcm.ssj.body.OverallActivation;
 import hcm.ssj.core.EventChannel;
 import hcm.ssj.core.Pipeline;
 import hcm.ssj.core.SSJException;
+import hcm.ssj.event.FloatsEventSender;
+import hcm.ssj.feedback.FeedbackManager;
 import hcm.ssj.ioput.BluetoothConnection;
 import hcm.ssj.ioput.BluetoothEventReader;
 import hcm.ssj.ioput.BluetoothWriter;
+import hcm.ssj.signal.MvgAvgVar;
 
 public class MainActivity extends Activity {
 
     String name = "Logue_Glass_Activity";
 
-    private final String PHONE_MAC = "60:8F:5C:F2:D0:9D";
+    private final String PHONE_NAME = "Nexus 6P";
+	private boolean receiveDataFromPhone = true;
 
     private Pipeline ssj;
 
-    @Override
+	@Override
     protected void onCreate(Bundle bundle) {
 
         //setup app
@@ -71,42 +80,50 @@ public class MainActivity extends Activity {
             audio.options.scale.set(false);
             ssj.addSensor(mic, audio);
 
-			BluetoothWriter socket = new BluetoothWriter();
-			socket.options.connectionName.set("audio");
-			socket.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-			socket.options.serverName.set("Nexus 6P");
-			ssj.addConsumer(socket, audio, 0.2, 0);
+			EventChannel activity_channel;
+			if(receiveDataFromPhone)
+			{
+				BluetoothWriter socket = new BluetoothWriter();
+				socket.options.connectionName.set("audio");
+				socket.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+				socket.options.serverName.set(PHONE_NAME);
+				ssj.addConsumer(socket, audio, 0.2, 0);
 
-			BluetoothEventReader eventReader = new BluetoothEventReader();
-			eventReader.options.connectionName.set("logue");
-			eventReader.options.connectionType.set(BluetoothConnection.Type.CLIENT);
-			eventReader.options.serverName.set("Nexus 6P");
-			EventChannel channel = ssj.registerEventProvider(eventReader);
+				BluetoothEventReader eventReader = new BluetoothEventReader();
+				eventReader.options.connectionName.set("logue");
+				eventReader.options.connectionType.set(BluetoothConnection.Type.CLIENT);
+				eventReader.options.serverName.set(PHONE_NAME);
+				activity_channel = ssj.registerEventProvider(eventReader);
+			}
+			else
+			{
+				AndroidSensor androidSensor = new AndroidSensor();
+				AndroidSensorChannel acc = new AndroidSensorChannel();
+				acc.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
+				ssj.addSensor(androidSensor, acc);
 
-//            AndroidSensor androidSensor = new AndroidSensor();
-//            androidSensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
-//            AndroidSensorChannel acc = new AndroidSensorChannel();
-//            ssj.addSensor(androidSensor, acc);
-//
-//            OverallActivation activity = new OverallActivation();
-//            ssj.addTransformer(activity, acc, 0.1, 5.0);
-//
-//            MvgAvgVar _activityf = new MvgAvgVar();
-//            _activityf.options.window.set(10.);
-//            ssj.addTransformer(_activityf, activity, 0.1, 0);
-//
-//            FloatsEventSender evactivity = new FloatsEventSender();
-//            evactivity.options.sender.set("SSJ");
-//            evactivity.options.event.set("OverallActivation");
-//            ssj.addConsumer(evactivity, _activityf, 0.1 * 5, 0);
-//            EventChannel activity_channel = ssj.registerEventProvider(evactivity);
-//
-//			FeedbackManager feedback = new FeedbackManager(this);
-//			feedback.options.strategy.set("adapt.xml");
-//			feedback.options.fromAsset.set(true);
-//            feedback.options.progression.set(10f);
-//            feedback.options.regression.set(10f);
-//			ssj.registerEventListener(feedback, activity_channel);
+				OverallActivation activity = new OverallActivation();
+				ssj.addTransformer(activity, acc, 0.1, 5.0);
+
+				MvgAvgVar _activityf = new MvgAvgVar();
+				_activityf.options.window.set(10.);
+				ssj.addTransformer(_activityf, activity, 0.1, 0);
+
+				FloatsEventSender evactivity = new FloatsEventSender();
+				evactivity.options.sender.set("SSJ");
+				evactivity.options.event.set("OverallActivation");
+				ssj.addConsumer(evactivity, _activityf, 0.1 * 5, 0);
+				activity_channel = ssj.registerEventProvider(evactivity);
+			}
+
+			FeedbackManager feedback = new FeedbackManager();
+			feedback.options.strategyFileName.set("adapt.xml");
+			feedback.options.fromAsset.set(true);
+            feedback.options.progression.set(10f);
+            feedback.options.regression.set(10f);
+            int layout_id = this.getResources().getIdentifier("layout_table", "id", this.getPackageName());
+            feedback.options.layout.set((TableLayout) this.findViewById(layout_id));
+			ssj.registerEventListener(feedback, activity_channel);
 		}
 		catch (SSJException e)
 		{

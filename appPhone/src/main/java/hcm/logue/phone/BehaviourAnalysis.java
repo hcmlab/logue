@@ -107,7 +107,7 @@ public class BehaviourAnalysis implements Runnable, SharedPreferences.OnSharedPr
 
     protected Status _status = Status.Idle;
 
-    private String _fbFilePath = Environment.getExternalStorageDirectory() + File.separator + "logue" + File.separator + "default.xml";
+    private String _fbFileName = "default.xml";
 
     public BehaviourAnalysis(MainActivity a, GraphView[] graphs)
     {
@@ -120,7 +120,7 @@ public class BehaviourAnalysis implements Runnable, SharedPreferences.OnSharedPr
         _pref.edit().putBoolean("FB_GLASS", _fbGlass).commit();
         _pref.edit().putString("AUDIO", _audioSource.toString()).commit();
         _pref.edit().putString("ACC", _accSource.toString()).commit();
-        _pref.edit().putString("FILE", _fbFilePath.toString()).commit();
+        _pref.edit().putString("FILE", _fbFileName.toString()).commit();
     }
 
     public void release()
@@ -141,10 +141,11 @@ public class BehaviourAnalysis implements Runnable, SharedPreferences.OnSharedPr
             BluetoothEventWriter glassEvent = null;
             FeedbackManager feedbackManager = null;
 
-            if (_fbFilePath != null && _fbFilePath.length() > 0)
+            if (_fbFileName != null && _fbFileName.length() > 0)
             {
-                feedbackManager = new FeedbackManager(_act);
-                feedbackManager.options.strategy.set(_fbFilePath);
+                feedbackManager = new FeedbackManager();
+                feedbackManager.options.strategyFilePath.set(Environment.getExternalStorageDirectory() + File.separator + "logue");
+                feedbackManager.options.strategyFileName.set(_fbFileName);
                 feedbackManager.options.fromAsset.set(false);
                 feedbackManager.options.progression.set(10f);
                 feedbackManager.options.regression.set(10f);
@@ -312,8 +313,8 @@ public class BehaviourAnalysis implements Runnable, SharedPreferences.OnSharedPr
         else if (_accSource == AccSource.Phone)
         {
             AndroidSensor androidSensor = new AndroidSensor();
-            androidSensor.options.sensorType.set(SensorType.LINEAR_ACCELERATION);
             acc = new AndroidSensorChannel();
+            ((AndroidSensorChannel)acc).options.sensorType.set(SensorType.LINEAR_ACCELERATION);
             _ssj.addSensor(androidSensor, acc);
         }
         else if (_accSource == AccSource.MsBand)
@@ -340,7 +341,6 @@ public class BehaviourAnalysis implements Runnable, SharedPreferences.OnSharedPr
 
         EventLogger log = new EventLogger();
         _ssj.registerEventListener(log, activity_channel);
-        _ssj.addComponent(log);
 
         if (_fbGlass && glassEvents != null) {
             _ssj.registerEventListener(glassEvents, activity_channel);
@@ -447,7 +447,7 @@ public class BehaviourAnalysis implements Runnable, SharedPreferences.OnSharedPr
         else if(key.equalsIgnoreCase("ACC"))
             _accSource = AccSource.valueOf(sharedPreferences.getString(key, _accSource.toString()));
         else if(key.equalsIgnoreCase("FILE"))
-            _fbFilePath = sharedPreferences.getString(key, _fbFilePath);
+            _fbFileName = sharedPreferences.getString(key, _fbFileName);
     }
 
     public Status getStatus()
