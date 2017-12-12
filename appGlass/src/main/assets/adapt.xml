@@ -29,18 +29,18 @@
         <!-- level 0 -->
         <feedback type="visual" level="0" valence="Desirable">
             <condition event="OverallActivation" sender="ssj" from="0" to="3"/>
-            <action res="icons/feedback/thumb_positive.png"/>
+            <action res="assets:icons/feedback/thumb_positive.png"/>
         </feedback>
 
         <feedback type="visual" level="0" valence="Undesirable">
             <condition event="OverallActivation" sender="ssj" from="3" to="999"/>
-            <action res="icons/feedback/thumb_negative.png"/>
+            <action res="assets:icons/feedback/thumb_negative.png"/>
         </feedback>
 
         <!-- level 1 -->
         <feedback type="visual" level="1" valence="Desirable">
             <condition event="OverallActivation" sender="ssj" from="0" to="3"/>
-            <action res="icons/feedback/thumb_positive.png"/>
+            <action res="assets:icons/feedback/thumb_positive.png"/>
         </feedback>
         <feedback type="audio" level="1" valence="Desirable">
             <condition event="OverallActivation" sender="ssj" from="0" to="3"/>
@@ -49,7 +49,7 @@
 
         <feedback type="visual" level="1" valence="Undesirable">
             <condition event="OverallActivation" sender="ssj" from="3" to="999"/>
-            <action res="icons/feedback/thumb_negative.png"/>
+            <action res="assets:icons/feedback/thumb_negative.png"/>
         </feedback>
         <feedback type="audio" level="1" valence="Undesirable">
             <condition event="OverallActivation" sender="ssj" from="3" to="999"/>

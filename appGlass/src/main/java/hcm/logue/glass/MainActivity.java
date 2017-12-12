@@ -117,8 +117,8 @@ public class MainActivity extends Activity {
 			}
 
 			FeedbackManager feedback = new FeedbackManager();
-			feedback.options.strategyFileName.set("adapt.xml");
-			feedback.options.fromAsset.set(true);
+			feedback.options.strategy.set("publicSpeaking.xml");
+			feedback.options.fromAssets.set(true);
             feedback.options.progression.set(10f);
             feedback.options.regression.set(10f);
             int layout_id = this.getResources().getIdentifier("layout_table", "id", this.getPackageName());

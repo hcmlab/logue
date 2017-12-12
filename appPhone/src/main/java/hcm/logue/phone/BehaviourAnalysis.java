@@ -23,13 +23,10 @@
 package hcm.logue.phone;
 
 import android.content.SharedPreferences;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.jjoe64.graphview.GraphView;
-
-import java.io.File;
 
 import hcm.ssj.androidSensor.AndroidSensor;
 import hcm.ssj.androidSensor.AndroidSensorChannel;
@@ -144,9 +141,8 @@ public class BehaviourAnalysis implements Runnable, SharedPreferences.OnSharedPr
             if (_fbFileName != null && _fbFileName.length() > 0)
             {
                 feedbackManager = new FeedbackManager();
-                feedbackManager.options.strategyFilePath.set(Environment.getExternalStorageDirectory() + File.separator + "logue");
-                feedbackManager.options.strategyFileName.set(_fbFileName);
-                feedbackManager.options.fromAsset.set(false);
+                feedbackManager.options.strategy.set(_fbFileName);
+                feedbackManager.options.fromAssets.set(false);
                 feedbackManager.options.progression.set(10f);
                 feedbackManager.options.regression.set(10f);
             }
